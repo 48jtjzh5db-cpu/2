@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>安紘的英雄傳說-終極整合版</title>
+    <title>安紘的英雄傳說-最終版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
@@ -47,12 +47,12 @@
         .daily-item.done .check-circle { background: #4caf50; color: white; border-color: #4caf50; }
         .check-circle { width: 30px; height: 30px; border: 2.5px solid var(--main-red); border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--main-red); flex-shrink: 0; }
 
-        /* 設置頁表單 */
+        /* 表單 */
         label { display: block; font-weight: bold; margin: 10px 0 5px 0; font-size: 0.9rem; }
         input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; font-size: 1rem; box-sizing: border-box; }
         .day-btn { flex: 1; padding: 8px 0; border: 1px solid #ccc; border-radius: 6px; background: #fff; text-align: center; cursor: pointer; font-size: 0.8rem; }
         .day-btn.selected { background: var(--main-red); color: white; border-color: var(--main-red); }
-        .btn-save { background: var(--dark); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 10px; margin-bottom: 20px; }
+        .btn-save { background: var(--dark); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 10px; margin-bottom: 20px; cursor: pointer; }
         .btn-del { background: #ff4444; color: white; border: none; border-radius: 5px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer; }
     </style>
 </head>
@@ -102,7 +102,7 @@
 <div id="setting" class="page">
     <div class="container">
         <h1>⚔️ 任務設定</h1>
-        <input type="text" id="task-name" placeholder="任務名稱 (例：寫數學講義)">
+        <input type="text" id="task-name" placeholder="任務名稱 (例：寫心算講義)">
         <select id="task-attr">
             <option value="chi">📖 國語</option><option value="math">🧠 數學</option>
             <option value="eng">🗣️ 英文</option><option value="ball">⚽ 運動</option><option value="life">🧹 生活</option>
@@ -136,7 +136,6 @@
     const ATTR_MAP = { chi:'國語', math:'數學', eng:'英文', ball:'運動', life:'生活' };
     const EMOJI_MAP = { chi:'📖', math:'🧠', eng:'🗣️', ball:'⚽', life:'🧹' };
 
-    // 稱號庫 (每10級切換)
     const RANKS = {
         chi: ["朗讀生", "小學生", "中學生", "大學生", "研究生", "學者", "史學家", "考據家", "教授", "大師", "🖋️ 文豪"],
         math: ["數字學徒", "實習生", "魔法使", "幻術師", "咒術師", "大魔導", "召喚師", "構築師", "聖導師", "賢者", "♾️ 法神"],
@@ -145,7 +144,7 @@
         life: ["勤務兵", "班長", "排長", "連長", "營長", "旅長", "師長", "軍長", "司令", "大將軍", "👑 統帥"]
     };
 
-    let data = JSON.parse(localStorage.getItem('hero_final_v12')) || {
+    let data = JSON.parse(localStorage.getItem('hero_final_v13')) || {
         stats: { chi:1, math:1, eng:1, ball:1, life:1 },
         exps: { chi:0, math:0, eng:0, ball:0, life:0 },
         log: {}, inventory: [], dropRate: 50,
@@ -170,7 +169,6 @@
         }
     }
 
-    // 雷達圖初始化
     const ctx = document.getElementById('radar').getContext('2d');
     const chart = new Chart(ctx, {
         type: 'radar',
@@ -216,7 +214,7 @@
         const now = new Date();
         const dateStr = now.toLocaleDateString();
         const day = now.getDay();
-        document.getElementById('today-info').innerText = `今天是星期${['日','一','二','三','四','五','六'][day]}`;
+        document.getElementById('today-info').innerText = `星期${['日','一','二','三','四','五','六'][day]}`;
         const list = document.getElementById('daily-list');
         list.innerHTML = '';
         const doneArr = data.log[dateStr] || [];
@@ -237,14 +235,11 @@
     function toggleTask(attr, name, exp) {
         const today = new Date().toLocaleDateString();
         if (!data.log[today]) data.log[today] = [];
-        
         const index = data.log[today].indexOf(name);
         
         if (index === -1) {
-            // 完成任務
             data.log[today].push(name);
             data.exps[attr] += parseInt(exp);
-            // 升級邏輯
             if (data.exps[attr] >= 100) {
                 data.exps[attr] -= 100;
                 data.stats[attr]++;
@@ -253,16 +248,14 @@
                     const prize = data.itemPool[Math.floor(Math.random() * data.itemPool.length)];
                     if (prize) {
                         data.inventory.push(prize);
-                        setTimeout(() => alert(`🎊 突破升級！獲得寶物：${prize.name}`), 500);
+                        setTimeout(() => alert(`🎊 獲得寶物：${prize.name}`), 500);
                     }
                 }
             }
         } else {
-            // 取消任務 (反悔機制)
-            if (confirm(`確定要將「${name}」恢復為未完成嗎？\n(將扣除 ${exp} 經驗值)`)) {
+            if (confirm(`確定要取消「${name}」的完成狀態並扣除經驗值嗎？`)) {
                 data.log[today].splice(index, 1);
                 data.exps[attr] -= parseInt(exp);
-                // 處理 XP 變負數的情況
                 if (data.exps[attr] < 0) {
                     if (data.stats[attr] > 1) {
                         data.stats[attr]--;
@@ -285,7 +278,7 @@
             slot.className = 'inv-slot' + (item ? ' has-item' : '');
             slot.innerHTML = item ? item.icon : '';
             if(item) slot.onclick = () => {
-                if(confirm(`🎒 使用寶物：${item.name}\n效果：${item.desc}`)) {
+                if(confirm(`🎒 使用：${item.name}\n${item.desc}`)) {
                     data.inventory.splice(i, 1); save(); renderInventory();
                 }
             };
@@ -298,7 +291,7 @@
         const attr = document.getElementById('task-attr').value;
         const exp = document.getElementById('task-exp').value;
         const days = Array.from(document.querySelectorAll('#week-picker .day-btn.selected')).map(b => parseInt(b.dataset.day));
-        if(!name || days.length === 0) return alert("請輸入名稱並選擇星期");
+        if(!name || days.length === 0) return alert("請輸入名稱與天數");
         data.customTasks.push({ id: Date.now(), name, attr, exp, days });
         save(); renderSettingList();
         document.getElementById('task-name').value = '';
@@ -318,12 +311,12 @@
 
     function renderSettingList() {
         const tList = document.getElementById('config-task-list');
-        tList.innerHTML = '<h3 style="border-top:1px solid #ccc; padding-top:10px;">現有任務</h3>';
+        tList.innerHTML = '<h3>現有任務</h3>';
         data.customTasks.forEach((t, i) => {
-            tList.innerHTML += `<div style="display:flex; justify-content:space-between; background:#fff; padding:8px; margin-bottom:5px; border-radius:8px; font-size:0.8rem;"><span>${t.name} (${ATTR_MAP[t.attr]})</span><button class="btn-del" onclick="data.customTasks.splice(${i},1);save();renderSettingList();">刪除</button></div>`;
+            tList.innerHTML += `<div style="display:flex; justify-content:space-between; background:#fff; padding:8px; margin-bottom:5px; border-radius:8px; font-size:0.8rem;"><span>${t.name}</span><button class="btn-del" onclick="data.customTasks.splice(${i},1);save();renderSettingList();">刪除</button></div>`;
         });
         const iList = document.getElementById('config-item-list');
-        iList.innerHTML = '<h3 style="border-top:1px solid #ccc; padding-top:10px;">寶物池</h3>';
+        iList.innerHTML = '<h3>寶物池</h3>';
         data.itemPool.forEach((item, i) => {
             iList.innerHTML += `<div style="display:flex; justify-content:space-between; background:#fff; padding:8px; margin-bottom:5px; border-radius:8px; font-size:0.8rem;"><span>${item.icon} ${item.name}</span><button class="btn-del" onclick="data.itemPool.splice(${i},1);save();renderSettingList();">刪除</button></div>`;
         });
@@ -333,22 +326,14 @@
         const list = document.getElementById('calendar-list');
         list.innerHTML = '';
         Object.keys(data.log).sort().reverse().forEach(date => {
-            list.innerHTML += `
-                <div class="container" style="border-width:2px;">
-                    <div style="font-weight:bold; color:var(--main-red);">${date}</div>
-                    <div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:5px;">
-                        ${data.log[date].map(t => `<span style="background:#eee; padding:2px 8px; border-radius:5px; font-size:0.7rem;">✅ ${t}</span>`).join('')}
-                    </div>
-                </div>`;
+            list.innerHTML += `<div class="container" style="border-width:2px;"><b>${date}</b><br><small>${data.log[date].join(', ')}</small></div>`;
         });
     }
 
     function save() { 
-        if(document.getElementById('drop-rate')) data.dropRate = document.getElementById('drop-rate').value;
-        localStorage.setItem('hero_final_v12', JSON.stringify(data)); 
+        data.dropRate = document.getElementById('drop-rate').value;
+        localStorage.setItem('hero_final_v13', JSON.stringify(data)); 
     }
-
-    // 初始化啟動
     renderStatus(); renderInventory();
 </script>
 </body>

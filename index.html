@@ -3,218 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>鄭安紘的英雄成長錄</title>
+    <title>安紘的英雄傳說</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
     
-    <script>
-        // ==========================================
-        // 🔧 勇者個人設定
-        // ==========================================
-        const MY_CONFIG = {
-            heroName: "鄭安紘",
-            avatarFile: "photo.jpg",  // 請確保照片與此檔案放在同個資料夾
-            subjects: [
-                { id: 'chi',  name: '國語', task: '寫作業 / 閱讀', icon: '📖' },
-                { id: 'math', name: '數學', task: '數學練習 / 寫作業', icon: '🧠' },
-                { id: 'eng',  name: '英文', task: '背單字 / 閱讀', icon: '🗣️' },
-                { id: 'ball', name: '運動', task: '足球練習 / 上課', icon: '⚽' },
-                { id: 'life', name: '生活', task: '整理書包 / 家事', icon: '🧹' }
-            ],
-            // 寶物清單
-            treasures: [
-                { name: '體力藥水', icon: '🧪', desc: '換 15 分鐘電視時間' },
-                { name: '傳送卷軸', icon: '📜', desc: '免做家事一次' },
-                { name: '神秘果實', icon: '🍎', desc: '換一個小零食' },
-                { name: '黃金獎牌', icon: '🥇', desc: '獲得一個實體小獎勵' }
-            ]
-        };
-    </script>
-
     <style>
-        body {
-            font-family: 'Noto Serif TC', serif; background-color: #dcd6c5;
-            background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity="0.05"/%3E%3C/svg%3E');
-            margin: 0; padding: 10px; color: #2c241b;
-        }
-        .container {
-            max-width: 650px; margin: 0 auto; border: 4px double #4a3b2a; padding: 15px;
-            background: rgba(245, 241, 232, 0.95); box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative;
-            border-radius: 10px;
-        }
-        h1 { text-align: center; border-bottom: 2px solid #8b0000; padding-bottom: 5px; margin: 10px 0; font-size: 1.8rem; }
-        .header { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px; }
-        .avatar {
-            width: 80px; height: 80px; border: 3px solid #8b0000; border-radius: 50%;
-            background: #333 no-repeat center/cover; display: flex; align-items: center; justify-content: center; color: white;
-        }
-        .chart-box { height: 250px; width: 100%; margin: 10px 0; }
+        :root { --main-red: #8b0000; --paper: #f5f1e8; --dark: #4a3b2a; }
+        body { font-family: 'Noto Serif TC', serif; background-color: #dcd6c5; margin: 0; padding: 0; color: #2c241b; overflow-x: hidden; }
         
-        /* 任務列表 */
-        .stat-item {
-            background: rgba(255,255,255,0.7); border: 1px solid #c0b090;
-            padding: 12px; border-radius: 12px; margin-bottom: 8px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .bar-bg { width: 100px; height: 12px; background: #ddd; border-radius: 6px; overflow: hidden; border: 1px solid #aaa; }
-        .bar-fill { height: 100%; background: linear-gradient(90deg, #d35400, #e67e22); width: 0%; transition: 0.4s; }
-        
-        /* 儲物箱 */
-        .inventory-title { border-top: 2px solid #8b0000; margin-top: 20px; padding-top: 10px; font-weight: 900; }
-        .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
-        .inv-slot { 
-            aspect-ratio: 1; background: #eee; border: 1px dashed #999; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer;
-        }
-        .inv-slot.has-item { background: #fff; border: 2px solid #8b0000; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        /* 導覽列 */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--dark); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); }
+        .nav-item { color: #aaa; text-decoration: none; font-size: 0.8rem; text-align: center; cursor: pointer; }
+        .nav-item.active { color: #fff; }
+        .nav-item div { font-size: 1.5rem; }
 
-        button { 
-            background: #4a3b2a; color: #f5f1e8; border: none; padding: 10px 15px; 
-            border-radius: 8px; cursor: pointer; box-shadow: 2px 2px 0 #000; font-family: inherit; font-weight: bold;
-        }
-        button:active { transform: translate(1px, 1px); box-shadow: none; }
+        /* 頁面容器 */
+        .page { display: none; padding: 20px 15px 80px 15px; max-width: 650px; margin: 0 auto; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 卡片與樣式 */
+        .container { border: 4px double var(--main-red); padding: 15px; background: rgba(245, 241, 232, 0.95); box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-radius: 10px; margin-bottom: 20px; }
+        h1 { text-align: center; border-bottom: 2px solid var(--main-red); margin: 0 0 15px 0; font-size: 1.5rem; }
+        
+        /* 任務清單樣式 */
+        .daily-item { display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #c0b090; }
+        .daily-item.done { opacity: 0.6; background: #e8e8e8; text-decoration: line-through; }
+        .check-btn { width: 30px; height: 30px; border: 2px solid var(--main-red); border-radius: 50%; margin-right: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        
+        /* 歷史紀錄樣式 */
+        .history-card { background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9rem; border-left: 5px solid var(--main-red); }
+        .history-date { font-weight: bold; color: var(--main-red); margin-bottom: 5px; }
+
+        /* 原有屬性樣式 */
+        .chart-box { height: 250px; width: 100%; margin: 10px 0; }
+        .bar-bg { width: 80px; height: 10px; background: #ddd; border-radius: 5px; overflow: hidden; }
+        .bar-fill { height: 100%; background: #d35400; width: 0%; transition: 0.3s; }
+        button { background: var(--dark); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1 id="title-name">英雄成長紀錄</h1>
+<div class="nav-bar">
+    <div class="nav-item active" onclick="showPage('status', this)"><div>👤</div>英雄</div>
+    <div class="nav-item" onclick="showPage('daily', this)"><div>📜</div>任務</div>
+    <div class="nav-item" onclick="showPage('history', this)"><div>⏳</div>足跡</div>
+</div>
 
-    <div class="header">
-        <div id="hero-img" class="avatar">?</div>
-        <div style="text-align:left">
-            <div id="display-name" style="font-size:1.4rem; font-weight:900;">載入中...</div>
-            <div style="font-size:0.9rem; color:#8b0000;">等級：Lv.<span id="total-lv">0</span> | 能力總和：<span id="total-val">0</span></div>
+<div id="status" class="page active">
+    <div class="container">
+        <h1>🛡️ 英雄成長紀錄</h1>
+        <div style="text-align: center; margin-bottom: 15px;">
+            <div style="font-size: 1.4rem; font-weight: 900;">鄭安紘</div>
+            <div style="color: var(--main-red);">等級 Lv.<span id="total-lv">1</span></div>
         </div>
+        <div class="chart-box"><canvas id="radar"></canvas></div>
+        <div id="attr-list"></div>
     </div>
+</div>
 
-    <div class="chart-box"><canvas id="radar"></canvas></div>
+<div id="daily" class="page">
+    <div class="container">
+        <h1>📜 每日挑戰</h1>
+        <p style="text-align: center; font-size: 0.8rem; color: #666;">達成任務可獲得屬性經驗與隨機寶物</p>
+        <div id="daily-list"></div>
+    </div>
+</div>
 
-    <div id="list"></div>
-
-    <div class="inventory-title">🎒 勇者儲物箱 (點擊使用)</div>
-    <div class="inventory-grid" id="inventory"></div>
-
-    <div style="text-align:center; margin-top:30px; color:#aaa; font-size:0.7rem; cursor:pointer;" onclick="if(confirm('確定重置？')){localStorage.clear();location.reload();}">重置數據</div>
+<div id="history" class="page">
+    <div class="container">
+        <h1>⏳ 冒險足跡</h1>
+        <div id="history-list"></div>
+    </div>
 </div>
 
 <script>
-    // 初始化設定
-    document.getElementById('display-name').innerText = MY_CONFIG.heroName;
-    const imgDiv = document.getElementById('hero-img');
-    if(MY_CONFIG.avatarFile) {
-        imgDiv.style.backgroundImage = `url('${MY_CONFIG.avatarFile}')`;
-        imgDiv.innerText = '';
-    } else {
-        imgDiv.innerText = MY_CONFIG.heroName[0];
+    // 1. 設定與初始化
+    const CONFIG = {
+        subjects: [
+            { id: 'chi', name: '國語', icon: '📖', target: '國語作業' },
+            { id: 'math', name: '數學', icon: '🧠', target: '數學練習' },
+            { id: 'eng', name: '英文', icon: '🗣️', target: '英文閱讀' },
+            { id: 'ball', name: '運動', icon: '⚽', target: '足球訓練' },
+            { id: 'life', name: '生活', icon: '🧹', target: '整理家事' }
+        ]
+    };
+
+    let data = JSON.parse(localStorage.getItem('hero_v3')) || {
+        stats: { chi:30, math:30, eng:30, ball:30, life:30 },
+        exps: { chi:0, math:0, eng:0, ball:0, life:0 },
+        dailyDone: {}, // 紀錄格式 { "2025-12-31": ["chi", "math"] }
+        history: [] // 紀錄格式 { date: "...", text: "..." }
+    };
+
+    // 2. 切換頁面邏輯
+    function showPage(pageId, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        el.classList.add('active');
+        if(pageId === 'history') renderHistory();
     }
 
-    // 讀取進度
-    let data = JSON.parse(localStorage.getItem('hero_save_final')) || {
-        stats: {},
-        inventory: []
-    };
-    
-    // 初始化科目數值
-    MY_CONFIG.subjects.forEach(s => {
-        if(!data.stats[s.id]) data.stats[s.id] = { val: 10, exp: 0 }; 
-    });
-
-    // 初始化雷達圖
+    // 3. 核心雷達圖
     const ctx = document.getElementById('radar').getContext('2d');
     const chart = new Chart(ctx, {
         type: 'radar',
         data: {
-            labels: MY_CONFIG.subjects.map(s => s.name),
+            labels: CONFIG.subjects.map(s => s.name),
             datasets: [{
-                data: MY_CONFIG.subjects.map(s => data.stats[s.id].val),
-                backgroundColor: 'rgba(139, 0, 0, 0.2)', borderColor: '#8b0000', borderWidth: 2, pointRadius: 4
+                data: CONFIG.subjects.map(s => data.stats[s.id]),
+                backgroundColor: 'rgba(139, 0, 0, 0.2)', borderColor: '#8b0000', borderWidth: 2
             }]
         },
-        options: {
-            scales: { r: { suggestedMin: 0, suggestedMax: 50, ticks: { display: false }, pointLabels: { font: { size: 14, weight: 'bold' } } } },
-            plugins: { legend: { display: false } }
-        }
+        options: { scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false } } }, plugins: { legend: { display: false } } }
     });
 
-    // 渲染函數
-    function render() {
-        const list = document.getElementById('list');
+    // 4. 渲染邏輯
+    function renderStatus() {
+        const list = document.getElementById('attr-list');
         list.innerHTML = '';
-        let totalVal = 0;
-        
-        MY_CONFIG.subjects.forEach((s, idx) => {
-            let sData = data.stats[s.id];
-            totalVal += sData.val;
+        let total = 0;
+        CONFIG.subjects.forEach((s, idx) => {
+            total += data.stats[s.id];
             list.innerHTML += `
-                <div class="stat-item">
-                    <div style="width:40%"><b>${s.icon} ${s.name}</b><br><small style="color:#666; font-size:0.7rem;">${s.task}</small></div>
-                    <div style="font-size:1.4rem; color:#8b0000; font-weight:bold; width:15%">${sData.val}</div>
-                    <div style="text-align:right; width:45%">
-                        <div class="bar-bg"><div class="bar-fill" style="width:${sData.exp}%"></div></div>
-                        <button onclick="addExp('${s.id}', ${idx})">完成任務</button>
-                    </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:white; padding:10px; border-radius:8px;">
+                    <b>${s.icon} ${s.name}</b>
+                    <span style="font-weight:bold; color:var(--main-red)">${data.stats[s.id]}</span>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${data.exps[s.id]}%"></div></div>
                 </div>
             `;
         });
-
-        // 更新總等級 (能力每升 5 點 = 1 級)
-        document.getElementById('total-val').innerText = totalVal;
-        document.getElementById('total-lv').innerText = Math.floor(totalVal / 5);
-
-        // 更新儲物箱
-        const invGrid = document.getElementById('inventory');
-        invGrid.innerHTML = '';
-        for(let i=0; i<8; i++) {
-            const item = data.inventory[i];
-            const slot = document.createElement('div');
-            slot.className = 'inv-slot' + (item ? ' has-item' : '');
-            slot.innerHTML = item ? item.icon : '';
-            if(item) slot.onclick = () => useItem(i);
-            invGrid.appendChild(slot);
-        }
-
-        localStorage.setItem('hero_save_final', JSON.stringify(data));
+        document.getElementById('total-lv').innerText = Math.floor(total / 5);
+        chart.data.datasets[0].data = CONFIG.subjects.map(s => data.stats[s.id]);
+        chart.update();
     }
 
-    // 增加經驗值邏輯
-    function addExp(id, idx) {
-        // 新手補貼：能力值低於 20 時升級較快
-        let currentVal = data.stats[id].val;
-        let gain = (currentVal < 20) ? 34 : 20; // 前期點3下升級，後期點5下
+    function renderDaily() {
+        const today = new Date().toLocaleDateString();
+        const doneList = data.dailyDone[today] || [];
+        const list = document.getElementById('daily-list');
+        list.innerHTML = '';
+
+        CONFIG.subjects.forEach(s => {
+            const isDone = doneList.includes(s.id);
+            list.innerHTML += `
+                <div class="daily-item ${isDone ? 'done' : ''}">
+                    <div class="check-btn" onclick="completeTask('${s.id}')">${isDone ? '✓' : ''}</div>
+                    <div><b>完成今日${s.target}</b></div>
+                </div>
+            `;
+        });
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('history-list');
+        list.innerHTML = data.history.length ? '' : '<p style="text-align:center">尚無冒險紀錄</p>';
+        data.history.slice(-20).reverse().forEach(h => {
+            list.innerHTML += `
+                <div class="history-card">
+                    <div class="history-date">${h.date}</div>
+                    <div>${h.text}</div>
+                </div>
+            `;
+        });
+    }
+
+    // 5. 任務執行邏輯
+    function completeTask(id) {
+        const today = new Date().toLocaleDateString();
+        if(!data.dailyDone[today]) data.dailyDone[today] = [];
+        if(data.dailyDone[today].includes(id)) return;
+
+        data.dailyDone[today].push(id);
         
-        data.stats[id].exp += gain;
+        // 增加經驗 (小二程度，點3下升級)
+        data.exps[id] += 34;
+        let logText = `完成了 ${CONFIG.subjects.find(s=>s.id===id).name} 任務，獲得經驗！`;
 
-        if(data.stats[id].exp >= 100) {
-            data.stats[id].exp = 0;
-            data.stats[id].val++;
-            
-            // 升級動畫
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            
-            // 隨機獲得寶物 (25% 機率)
-            if(Math.random() < 0.25 && data.inventory.length < 8) {
-                const prize = MY_CONFIG.treasures[Math.floor(Math.random() * MY_CONFIG.treasures.length)];
-                data.inventory.push(prize);
-                setTimeout(() => alert(`🎉 恭喜！獲得寶物：${prize.name}！`), 500);
-            }
-
-            chart.data.datasets[0].data[idx] = data.stats[id].val;
-            chart.update();
+        if(data.exps[id] >= 100) {
+            data.exps[id] = 0;
+            data.stats[id]++;
+            logText += ` ✨能力突破至 ${data.stats[id]}！`;
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
-        render();
+
+        data.history.push({ date: new Date().toLocaleString(), text: logText });
+        save();
+        renderStatus();
+        renderDaily();
     }
 
-    function useItem(index) {
-        const item = data.inventory[index];
-        if(confirm(`使用【${item.name}】？\n效果：${item.desc}`)) {
-            data.inventory.splice(index, 1);
-            render();
-        }
-    }
+    function save() { localStorage.setItem('hero_v3', JSON.stringify(data)); }
 
-    render();
+    renderStatus();
+    renderDaily();
 </script>
 </body>
 </html>

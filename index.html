@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>安紘的英雄傳說-終極自訂版</title>
+    <title>安紘的英雄傳說-終極整合版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { --main-red: #8b0000; --dark: #4a3b2a; --gold: #f59e0b; --paper: #f5f1e8; }
+        :root { --main-red: #8b0000; --dark: #4a3b2a; --gold: #f59e0b; --rank-gold: #b45309; }
         body { font-family: 'Noto Serif TC', serif; background-color: #dcd6c5; margin: 0; padding: 0; color: #2c241b; -webkit-tap-highlight-color: transparent; }
         
-        /* 底部導覽列 */
+        /* 導覽列 */
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--dark); display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.3); }
         .nav-item { color: #888; text-decoration: none; font-size: 0.75rem; text-align: center; flex: 1; cursor: pointer; }
         .nav-item.active { color: #fff; }
@@ -26,31 +26,34 @@
         .container { border: 4px double var(--main-red); padding: 15px; background: rgba(245, 241, 232, 0.95); box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 15px; }
         h1 { text-align: center; border-bottom: 2px solid var(--main-red); margin: 0 0 15px 0; font-size: 1.4rem; letter-spacing: 2px; }
 
-        /* 屬性進度條 */
-        .avatar { width: 95px; height: 95px; border: 3px solid var(--main-red); border-radius: 50%; background: #333 no-repeat center/cover; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        /* 英雄屬性 */
+        .avatar { width: 95px; height: 95px; border: 3px solid var(--main-red); border-radius: 50%; background: #333 no-repeat center/cover; }
         .attr-row { background: white; padding: 10px; border-radius: 10px; border: 1px solid #c0b090; margin-bottom: 8px; }
-        .attr-info { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; font-size: 0.95rem; }
+        .attr-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-weight: bold; }
+        .attr-label { font-size: 0.9rem; }
+        .rank-tag { color: var(--rank-gold); font-size: 0.8rem; background: rgba(180, 83, 9, 0.1); padding: 2px 6px; border-radius: 4px; }
         .bar-outer { width: 100%; height: 12px; background: #eee; border-radius: 6px; overflow: hidden; border: 1px solid #ccc; }
         .bar-inner { height: 100%; background: linear-gradient(90deg, #f59e0b, #d35400); width: 0%; transition: 0.6s; }
 
-        /* 儲物箱格子 */
+        /* 儲物箱 */
         .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
         .inv-slot { aspect-ratio: 1; background: rgba(255,255,255,0.5); border: 2px dashed #bbb; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; }
-        .inv-slot.has-item { border: 2.5px solid var(--main-red); background: #fff; box-shadow: 2px 2px 8px rgba(139,0,0,0.1); }
+        .inv-slot.has-item { border: 2.5px solid var(--main-red); background: #fff; }
 
         /* 任務列表 */
-        .daily-item { display: flex; align-items: center; background: white; padding: 16px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #c0b090; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .daily-item.done { opacity: 0.5; background: #f0f0f0; }
-        .check-circle { width: 30px; height: 30px; border: 2.5px solid var(--main-red); border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--main-red); }
+        .daily-item { display: flex; align-items: center; background: white; padding: 16px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #c0b090; cursor: pointer; transition: 0.2s; }
+        .daily-item:active { transform: scale(0.98); }
+        .daily-item.done { background: #e8f5e9; border-color: #4caf50; }
+        .daily-item.done .check-circle { background: #4caf50; color: white; border-color: #4caf50; }
+        .check-circle { width: 30px; height: 30px; border: 2.5px solid var(--main-red); border-radius: 50%; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--main-red); flex-shrink: 0; }
 
-        /* 設置頁表單樣式 */
+        /* 設置頁表單 */
         label { display: block; font-weight: bold; margin: 10px 0 5px 0; font-size: 0.9rem; }
         input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; font-size: 1rem; box-sizing: border-box; }
-        .day-btn { flex: 1; min-width: 40px; padding: 8px 0; border: 1px solid #ccc; border-radius: 6px; background: #fff; text-align: center; cursor: pointer; font-size: 0.8rem; }
+        .day-btn { flex: 1; padding: 8px 0; border: 1px solid #ccc; border-radius: 6px; background: #fff; text-align: center; cursor: pointer; font-size: 0.8rem; }
         .day-btn.selected { background: var(--main-red); color: white; border-color: var(--main-red); }
-        .btn-save { background: var(--dark); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 0 #222; }
-        .btn-save:active { transform: translateY(2px); box-shadow: 0 2px 0 #222; }
-        .btn-del { background: #ff4444; color: white; border: none; border-radius: 5px; padding: 4px 8px; font-size: 0.8rem; }
+        .btn-save { background: var(--dark); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 10px; margin-bottom: 20px; }
+        .btn-del { background: #ff4444; color: white; border: none; border-radius: 5px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -99,19 +102,15 @@
 <div id="setting" class="page">
     <div class="container">
         <h1>⚔️ 任務設定</h1>
-        <label>任務名稱</label>
-        <input type="text" id="task-name" placeholder="例如：練習足球、寫數學功課">
-        <label>對應能力</label>
+        <input type="text" id="task-name" placeholder="任務名稱 (例：寫數學講義)">
         <select id="task-attr">
             <option value="chi">📖 國語</option><option value="math">🧠 數學</option>
             <option value="eng">🗣️ 英文</option><option value="ball">⚽ 運動</option><option value="life">🧹 生活</option>
         </select>
-        <label>獎勵經驗值 (XP)</label>
         <select id="task-exp">
-            <option value="20">普通 (20 XP)</option><option value="34">重要 (34 XP)</option><option value="50">大挑戰 (50 XP)</option>
+            <option value="20">普通 (20 XP)</option><option value="34">重要 (34 XP)</option><option value="50">挑戰 (50 XP)</option>
         </select>
-        <label>執行星期</label>
-        <div class="weekday-picker" id="week-picker" style="display:flex; gap:5px; margin-top:5px;">
+        <div class="weekday-picker" id="week-picker" style="display:flex; gap:5px; margin:10px 0;">
             <div class="day-btn selected" data-day="1">一</div><div class="day-btn selected" data-day="2">二</div>
             <div class="day-btn selected" data-day="3">三</div><div class="day-btn selected" data-day="4">四</div>
             <div class="day-btn selected" data-day="5">五</div><div class="day-btn" data-day="6">六</div><div class="day-btn" data-day="0">日</div>
@@ -121,16 +120,13 @@
     </div>
 
     <div class="container">
-        <h1>🎁 寶物池與機率</h1>
-        <label>升級時掉落機率 (0-100%)</label>
-        <input type="number" id="drop-rate" min="0" max="100" style="margin-bottom:15px;">
+        <h1>🎁 寶物與機率</h1>
+        <label>掉落機率 (0-100%)</label>
+        <input type="number" id="drop-rate" min="0" max="100">
         <hr>
-        <label>新增寶物名稱</label>
-        <input type="text" id="item-name" placeholder="例如：喝大杯珍奶一次">
-        <label>寶物圖示 (Emoji)</label>
-        <input type="text" id="item-icon" placeholder="例如：🥤, 📺, 🧱">
-        <label>寶物兌換說明</label>
-        <textarea id="item-desc" placeholder="這項寶物可以用來換什麼..."></textarea>
+        <input type="text" id="item-name" placeholder="寶物名稱">
+        <input type="text" id="item-icon" placeholder="Emoji 圖示">
+        <textarea id="item-desc" placeholder="寶物描述..."></textarea>
         <button class="btn-save" onclick="addNewItem()">＋ 新增到寶物池</button>
         <div id="config-item-list"></div>
     </div>
@@ -140,25 +136,26 @@
     const ATTR_MAP = { chi:'國語', math:'數學', eng:'英文', ball:'運動', life:'生活' };
     const EMOJI_MAP = { chi:'📖', math:'🧠', eng:'🗣️', ball:'⚽', life:'🧹' };
 
-    // 資料初始化 (版本 v8 支援寶物自訂)
-    let data = JSON.parse(localStorage.getItem('hero_v8_final')) || {
-        stats: { chi:10, math:10, eng:10, ball:10, life:10 },
+    // 稱號庫 (每10級切換)
+    const RANKS = {
+        chi: ["朗讀生", "小學生", "中學生", "大學生", "研究生", "學者", "史學家", "考據家", "教授", "大師", "🖋️ 文豪"],
+        math: ["數字學徒", "實習生", "魔法使", "幻術師", "咒術師", "大魔導", "召喚師", "構築師", "聖導師", "賢者", "♾️ 法神"],
+        eng: ["練習生", "聯絡員", "翻譯官", "外交官", "領事官", "大使", "總督", "議長", "指揮官", "元首", "🌐 村長"],
+        ball: ["慢跑者", "追風者", "疾速手", "閃電俠", "穿梭者", "神速手", "躍遷者", "時空者", "超越者", "極速神", "⚡ 光速神"],
+        life: ["勤務兵", "班長", "排長", "連長", "營長", "旅長", "師長", "軍長", "司令", "大將軍", "👑 統帥"]
+    };
+
+    let data = JSON.parse(localStorage.getItem('hero_final_v12')) || {
+        stats: { chi:1, math:1, eng:1, ball:1, life:1 },
         exps: { chi:0, math:0, eng:0, ball:0, life:0 },
-        log: {}, 
-        inventory: [], 
-        dropRate: 50,
+        log: {}, inventory: [], dropRate: 50,
         customTasks: [
             { id: 1, name: "國語練習", attr: "chi", exp: 34, days: [1,2,3,4,5] },
             { id: 2, name: "數學心算", attr: "math", exp: 34, days: [1,2,3,4,5] }
         ],
-        itemPool: [
-            { name: '體力藥水', icon: '🧪', desc: '換 15 分鐘電視/平板時間' },
-            { name: '傳送卷軸', icon: '📜', desc: '免除一次家事或功課檢查' },
-            { name: '神秘果實', icon: '🍎', desc: '獲得一個神秘小零食' }
-        ]
+        itemPool: [{ name: '體力藥水', icon: '🧪', desc: '換 15 分鐘電視時間' }]
     };
 
-    // 頁面切換邏輯
     function showPage(pageId, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -173,7 +170,7 @@
         }
     }
 
-    // 初始化雷達圖 (數值上限 100)
+    // 雷達圖初始化
     const ctx = document.getElementById('radar').getContext('2d');
     const chart = new Chart(ctx, {
         type: 'radar',
@@ -183,17 +180,15 @@
                 data: Object.values(data.stats), 
                 backgroundColor: 'rgba(139, 0, 0, 0.2)', 
                 borderColor: '#8b0000', 
-                borderWidth: 3,
-                pointBackgroundColor: '#8b0000'
+                borderWidth: 3 
             }]
         },
         options: { 
-            scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false }, pointLabels: { font: { size: 14, weight: 'bold' } } } },
+            scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false } } },
             plugins: { legend: { display: false } }
         }
     });
 
-    // 星期按鈕切換
     document.querySelectorAll('.day-btn').forEach(btn => btn.onclick = () => btn.classList.toggle('selected'));
 
     function renderStatus() {
@@ -202,15 +197,83 @@
         let sum = 0;
         Object.keys(ATTR_MAP).forEach(key => {
             sum += data.stats[key];
+            const rank = RANKS[key][Math.min(Math.floor(data.stats[key] / 10), 10)];
             list.innerHTML += `
                 <div class="attr-row">
-                    <div class="attr-info"><span>${EMOJI_MAP[key]} ${ATTR_MAP[key]}</span><span>Lv.${data.stats[key]}</span></div>
+                    <div class="attr-info">
+                        <span class="attr-label">${EMOJI_MAP[key]} ${ATTR_MAP[key]} Lv.${data.stats[key]}</span>
+                        <span class="rank-tag">${rank}</span>
+                    </div>
                     <div class="bar-outer"><div class="bar-inner" style="width:${data.exps[key]}%"></div></div>
                 </div>`;
         });
         document.getElementById('total-lv').innerText = Math.floor(sum / 5);
         chart.data.datasets[0].data = Object.keys(ATTR_MAP).map(k => data.stats[k]);
         chart.update();
+    }
+
+    function renderDaily() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        const day = now.getDay();
+        document.getElementById('today-info').innerText = `今天是星期${['日','一','二','三','四','五','六'][day]}`;
+        const list = document.getElementById('daily-list');
+        list.innerHTML = '';
+        const doneArr = data.log[dateStr] || [];
+        
+        data.customTasks.filter(t => t.days.includes(day)).forEach(t => {
+            const isDone = doneArr.includes(t.name);
+            const itemDiv = document.createElement('div');
+            itemDiv.className = `daily-item ${isDone ? 'done' : ''}`;
+            itemDiv.innerHTML = `
+                <div class="check-circle">${isDone ? '✓' : ''}</div>
+                <div style="flex:1"><b>${t.name}</b><br><small>${ATTR_MAP[t.attr]} +${t.exp}XP</small></div>
+            `;
+            itemDiv.onclick = () => toggleTask(t.attr, t.name, t.exp);
+            list.appendChild(itemDiv);
+        });
+    }
+
+    function toggleTask(attr, name, exp) {
+        const today = new Date().toLocaleDateString();
+        if (!data.log[today]) data.log[today] = [];
+        
+        const index = data.log[today].indexOf(name);
+        
+        if (index === -1) {
+            // 完成任務
+            data.log[today].push(name);
+            data.exps[attr] += parseInt(exp);
+            // 升級邏輯
+            if (data.exps[attr] >= 100) {
+                data.exps[attr] -= 100;
+                data.stats[attr]++;
+                confetti({ particleCount: 150, spread: 70 });
+                if (Math.random() * 100 < data.dropRate && data.inventory.length < 8) {
+                    const prize = data.itemPool[Math.floor(Math.random() * data.itemPool.length)];
+                    if (prize) {
+                        data.inventory.push(prize);
+                        setTimeout(() => alert(`🎊 突破升級！獲得寶物：${prize.name}`), 500);
+                    }
+                }
+            }
+        } else {
+            // 取消任務 (反悔機制)
+            if (confirm(`確定要將「${name}」恢復為未完成嗎？\n(將扣除 ${exp} 經驗值)`)) {
+                data.log[today].splice(index, 1);
+                data.exps[attr] -= parseInt(exp);
+                // 處理 XP 變負數的情況
+                if (data.exps[attr] < 0) {
+                    if (data.stats[attr] > 1) {
+                        data.stats[attr]--;
+                        data.exps[attr] += 100;
+                    } else {
+                        data.exps[attr] = 0;
+                    }
+                }
+            }
+        }
+        save(); renderDaily();
     }
 
     function renderInventory() {
@@ -222,7 +285,7 @@
             slot.className = 'inv-slot' + (item ? ' has-item' : '');
             slot.innerHTML = item ? item.icon : '';
             if(item) slot.onclick = () => {
-                if(confirm(`🎒 勇者寶物：${item.name}\n✨ 效果：${item.desc}\n\n現在要使用嗎？`)) {
+                if(confirm(`🎒 使用寶物：${item.name}\n效果：${item.desc}`)) {
                     data.inventory.splice(i, 1); save(); renderInventory();
                 }
             };
@@ -230,50 +293,13 @@
         }
     }
 
-    function renderDaily() {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString();
-        const day = now.getDay();
-        document.getElementById('today-info').innerText = `今天是星期${['日','一','二','三','四','五','六'][day]}`;
-        const list = document.getElementById('daily-list');
-        list.innerHTML = '';
-        const doneArr = data.log[dateStr] || [];
-        const todaysTasks = data.customTasks.filter(t => t.days.includes(day));
-
-        todaysTasks.forEach(t => {
-            const isDone = doneArr.includes(t.name);
-            list.innerHTML += `
-                <div class="daily-item ${isDone ? 'done' : ''}" onclick="completeTask('${t.attr}', '${t.name}', ${t.exp})">
-                    <div class="check-circle">${isDone ? '✓' : ''}</div>
-                    <div style="flex:1"><b>${t.name}</b><br><small>能力：${ATTR_MAP[t.attr]}</small></div>
-                </div>`;
-        });
-    }
-
-    function completeTask(attr, name, exp) {
-        const today = new Date().toLocaleDateString();
-        if(!data.log[today]) data.log[today] = [];
-        if(data.log[today].includes(name)) return;
-        data.log[today].push(name);
-        data.exps[attr] += parseInt(exp);
-        if(data.exps[attr] >= 100) {
-            data.exps[attr] = 0; data.stats[attr]++;
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            // 自訂機率掉寶
-            if(Math.random() * 100 < data.dropRate && data.inventory.length < 8 && data.itemPool.length > 0) {
-                const prize = data.itemPool[Math.floor(Math.random() * data.itemPool.length)];
-                data.inventory.push(prize);
-                setTimeout(() => alert(`🎊 突破！${ATTR_MAP[attr]} 升級！\n🎁 獲得寶物：【${prize.name}】！`), 500);
-            }
-        }
-        save(); renderDaily();
-    }
-
     function addNewTask() {
         const name = document.getElementById('task-name').value;
+        const attr = document.getElementById('task-attr').value;
+        const exp = document.getElementById('task-exp').value;
         const days = Array.from(document.querySelectorAll('#week-picker .day-btn.selected')).map(b => parseInt(b.dataset.day));
-        if(!name || days.length === 0) return alert("請輸入任務名稱並選擇星期");
-        data.customTasks.push({ id: Date.now(), name, attr: document.getElementById('task-attr').value, exp: document.getElementById('task-exp').value, days });
+        if(!name || days.length === 0) return alert("請輸入名稱並選擇星期");
+        data.customTasks.push({ id: Date.now(), name, attr, exp, days });
         save(); renderSettingList();
         document.getElementById('task-name').value = '';
     }
@@ -291,20 +317,16 @@
     }
 
     function renderSettingList() {
-        data.dropRate = document.getElementById('drop-rate').value;
-        // 渲染任務清單
         const tList = document.getElementById('config-task-list');
-        tList.innerHTML = '<h3 style="margin-top:20px; border-top:1px solid #ccc; padding-top:10px;">現有任務清單</h3>';
+        tList.innerHTML = '<h3 style="border-top:1px solid #ccc; padding-top:10px;">現有任務</h3>';
         data.customTasks.forEach((t, i) => {
-            tList.innerHTML += `<div style="display:flex; justify-content:space-between; background:#fff; padding:8px; margin-bottom:5px; border-radius:8px; border:1px solid #ddd; font-size:0.9rem;"><span>${t.name} (${ATTR_MAP[t.attr]})</span><button class="btn-del" onclick="data.customTasks.splice(${i},1);save();renderSettingList();">刪除</button></div>`;
+            tList.innerHTML += `<div style="display:flex; justify-content:space-between; background:#fff; padding:8px; margin-bottom:5px; border-radius:8px; font-size:0.8rem;"><span>${t.name} (${ATTR_MAP[t.attr]})</span><button class="btn-del" onclick="data.customTasks.splice(${i},1);save();renderSettingList();">刪除</button></div>`;
         });
-        // 渲染寶物清單
         const iList = document.getElementById('config-item-list');
-        iList.innerHTML = '<h3 style="margin-top:20px; border-top:1px solid #ccc; padding-top:10px;">寶物池清單</h3>';
+        iList.innerHTML = '<h3 style="border-top:1px solid #ccc; padding-top:10px;">寶物池</h3>';
         data.itemPool.forEach((item, i) => {
-            iList.innerHTML += `<div style="display:flex; justify-content:space-between; background:#fff; padding:8px; margin-bottom:5px; border-radius:8px; border:1px solid #ddd; font-size:0.9rem;"><span>${item.icon} ${item.name}</span><button class="btn-del" onclick="data.itemPool.splice(${i},1);save();renderSettingList();">刪除</button></div>`;
+            iList.innerHTML += `<div style="display:flex; justify-content:space-between; background:#fff; padding:8px; margin-bottom:5px; border-radius:8px; font-size:0.8rem;"><span>${item.icon} ${item.name}</span><button class="btn-del" onclick="data.itemPool.splice(${i},1);save();renderSettingList();">刪除</button></div>`;
         });
-        save();
     }
 
     function renderHistory() {
@@ -312,10 +334,10 @@
         list.innerHTML = '';
         Object.keys(data.log).sort().reverse().forEach(date => {
             list.innerHTML += `
-                <div class="container" style="border-width:2px; border-style:solid; margin-bottom:10px;">
+                <div class="container" style="border-width:2px;">
                     <div style="font-weight:bold; color:var(--main-red);">${date}</div>
                     <div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:5px;">
-                        ${data.log[date].map(t => `<span style="background:#eee; padding:2px 8px; border-radius:5px; font-size:0.8rem;">✅ ${t}</span>`).join('')}
+                        ${data.log[date].map(t => `<span style="background:#eee; padding:2px 8px; border-radius:5px; font-size:0.7rem;">✅ ${t}</span>`).join('')}
                     </div>
                 </div>`;
         });
@@ -323,10 +345,10 @@
 
     function save() { 
         if(document.getElementById('drop-rate')) data.dropRate = document.getElementById('drop-rate').value;
-        localStorage.setItem('hero_v8_final', JSON.stringify(data)); 
+        localStorage.setItem('hero_final_v12', JSON.stringify(data)); 
     }
 
-    // 啟動
+    // 初始化啟動
     renderStatus(); renderInventory();
 </script>
 </body>

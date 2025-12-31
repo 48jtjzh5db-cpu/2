@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>安紘的英雄傳說-終極管理版</title>
+    <title>安紘的英雄傳說-最終完全版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
@@ -23,30 +23,29 @@
         .container { border: 4px double var(--main-red); padding: 15px; background: rgba(245, 241, 232, 0.95); box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 15px; }
         h1 { text-align: center; border-bottom: 2px solid var(--main-red); margin: 0 0 15px 0; font-size: 1.4rem; }
 
-        /* 頭像樣式 */
+        /* 頭像與屬性 */
         .avatar-box { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 10px; }
         .avatar { width: 90px; height: 90px; border: 3px solid var(--main-red); border-radius: 50%; background: #333 no-repeat center/cover; }
-
-        /* 屬性進度條樣式 */
         .attr-row { background: white; padding: 10px; border-radius: 10px; border: 1px solid #c0b090; margin-bottom: 8px; }
         .attr-info { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; }
         .bar-outer { width: 100%; height: 10px; background: #eee; border-radius: 5px; overflow: hidden; border: 1px solid #ccc; }
         .bar-inner { height: 100%; background: linear-gradient(90deg, #f59e0b, #d35400); width: 0%; transition: 0.5s; }
 
-        /* 任務清單樣式 */
+        /* 儲物箱樣式 */
+        .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+        .inv-slot { aspect-ratio: 1; background: #fff; border: 1px dashed #999; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; }
+        .inv-slot.has-item { border: 2px solid var(--main-red); background: #fff; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+
+        /* 任務清單 */
         .daily-item { display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #c0b090; }
         .daily-item.done { opacity: 0.5; background: #eee; }
         .check-circle { width: 28px; height: 28px; border: 2px solid var(--main-red); border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        /* 表單樣式 */
-        .form-group { margin-bottom: 15px; }
-        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; font-size: 1rem; }
-        .weekday-picker { display: flex; gap: 5px; flex-wrap: wrap; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; margin-top: 5px; }
+        .weekday-picker { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
         .day-btn { padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
         .day-btn.selected { background: var(--main-red); color: white; border-color: var(--main-red); }
-        .btn-save { background: var(--dark); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 1.1rem; }
-        
-        .task-card { background: #fff; border: 1px solid #ccc; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-save { background: var(--dark); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -68,8 +67,13 @@
                 <div style="color: var(--main-red); font-weight: bold;">總等級 Lv.<span id="total-lv">1</span></div>
             </div>
         </div>
-        <div style="height:250px;"><canvas id="radar"></canvas></div>
+        <div style="height:220px;"><canvas id="radar"></canvas></div>
         <div id="attr-list"></div>
+    </div>
+
+    <div class="container">
+        <h1>🎒 勇者儲物箱</h1>
+        <div class="inv-grid" id="inventory"></div>
     </div>
 </div>
 
@@ -91,27 +95,33 @@
 <div id="setting" class="page">
     <div class="container">
         <h1>⚙️ 任務自訂</h1>
-        <div class="form-group"><label>任務名稱</label><input type="text" id="task-name" placeholder="例如：背 5 個英文單字"></div>
-        <div class="form-group"><label>對應數值</label><select id="task-attr"><option value="chi">📖 國語</option><option value="math">🧠 數學</option><option value="eng">🗣️ 英文</option><option value="ball">⚽ 運動</option><option value="life">🧹 生活</option></select></div>
-        <div class="form-group"><label>獲得經驗值</label><select id="task-exp"><option value="20">20 (普通)</option><option value="34">34 (重要 - 點3下升級)</option><option value="50">50 (大挑戰)</option></select></div>
-        <div class="form-group"><label>星期幾執行</label><div class="weekday-picker" id="week-picker"><div class="day-btn selected" data-day="1">一</div><div class="day-btn selected" data-day="2">二</div><div class="day-btn selected" data-day="3">三</div><div class="day-btn selected" data-day="4">四</div><div class="day-btn selected" data-day="5">五</div><div class="day-btn selected" data-day="6">六</div><div class="day-btn selected" data-day="0">日</div></div></div>
+        <div style="margin-bottom:10px;"><label>任務名稱</label><input type="text" id="task-name"></div>
+        <div style="margin-bottom:10px;"><label>對應數值</label><select id="task-attr"><option value="chi">📖 國語</option><option value="math">🧠 數學</option><option value="eng">🗣️ 英文</option><option value="ball">⚽ 運動</option><option value="life">🧹 生活</option></select></div>
+        <div style="margin-bottom:10px;"><label>獲得經驗值</label><select id="task-exp"><option value="20">20 (普通)</option><option value="34">34 (重要)</option><option value="50">50 (大挑戰)</option></select></div>
+        <label>執行日期</label><div class="weekday-picker" id="week-picker"><div class="day-btn selected" data-day="1">一</div><div class="day-btn selected" data-day="2">二</div><div class="day-btn selected" data-day="3">三</div><div class="day-btn selected" data-day="4">四</div><div class="day-btn selected" data-day="5">五</div><div class="day-btn selected" data-day="6">六</div><div class="day-btn selected" data-day="0">日</div></div>
         <button class="btn-save" onclick="addNewTask()">＋ 新增任務</button>
     </div>
-    <div class="container"><h1>📋 現有任務</h1><div id="config-task-list"></div></div>
+    <div class="container"><h1>📋 現有任務清單</h1><div id="config-task-list"></div></div>
 </div>
 
 <script>
     const ATTR_MAP = { chi:'國語', math:'數學', eng:'英文', ball:'運動', life:'生活' };
     const EMOJI_MAP = { chi:'📖', math:'🧠', eng:'🗣️', ball:'⚽', life:'🧹' };
-    
-    let data = JSON.parse(localStorage.getItem('hero_v5')) || {
+    const TREASURES = [
+        { name: '體力藥水', icon: '🧪', desc: '換 15 分鐘看電視時間' },
+        { name: '傳送卷軸', icon: '📜', desc: '免做家事一次' },
+        { name: '神秘果實', icon: '🍎', desc: '換一個小零食' },
+        { name: '黃金球靴', icon: '👟', desc: '足球特訓獎勵' }
+    ];
+
+    let data = JSON.parse(localStorage.getItem('hero_final_v6')) || {
         stats: { chi:10, math:10, eng:10, ball:10, life:10 },
         exps: { chi:0, math:0, eng:0, ball:0, life:0 },
         log: {},
+        inventory: [],
         customTasks: [
-            { id: 1, name: "國語讀報", attr: "chi", exp: 34, days: [1,2,3,4,5] },
-            { id: 2, name: "數學口算", attr: "math", exp: 34, days: [1,2,3,4,5] },
-            { id: 3, name: "足球練習", attr: "ball", exp: 50, days: [6,0] }
+            { id: 1, name: "國語練習", attr: "chi", exp: 34, days: [1,2,3,4,5] },
+            { id: 2, name: "數學口算", attr: "math", exp: 34, days: [1,2,3,4,5] }
         ]
     };
 
@@ -120,7 +130,7 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
         el.classList.add('active');
-        if(pageId === 'status') renderStatus();
+        if(pageId === 'status') { renderStatus(); renderInventory(); }
         if(pageId === 'daily') renderDaily();
         if(pageId === 'history') renderHistory();
         if(pageId === 'setting') renderSettingList();
@@ -157,6 +167,59 @@
         chart.update();
     }
 
+    function renderInventory() {
+        const inv = document.getElementById('inventory');
+        inv.innerHTML = '';
+        for(let i=0; i<8; i++) {
+            const item = data.inventory[i];
+            const slot = document.createElement('div');
+            slot.className = 'inv-slot' + (item ? ' has-item' : '');
+            slot.innerHTML = item ? item.icon : '';
+            if(item) slot.onclick = () => useItem(i);
+            inv.appendChild(slot);
+        }
+    }
+
+    function useItem(index) {
+        const item = data.inventory[index];
+        if(confirm(`使用【${item.name}】？\n效果：${item.desc}`)) {
+            data.inventory.splice(index, 1);
+            save(); renderInventory();
+        }
+    }
+
+    function completeTask(attr, name, exp) {
+        const today = new Date().toLocaleDateString();
+        if(!data.log[today]) data.log[today] = [];
+        if(data.log[today].includes(name)) return;
+        
+        data.log[today].push(name);
+        data.exps[attr] += parseInt(exp);
+
+        if(data.exps[attr] >= 100) {
+            data.exps[attr] = 0;
+            data.stats[attr]++;
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            
+            // 升級掉寶機制 (50% 機率掉落)
+            if(Math.random() > 0.5 && data.inventory.length < 8) {
+                const prize = TREASURES[Math.floor(Math.random() * TREASURES.length)];
+                data.inventory.push(prize);
+                setTimeout(() => alert(`🎊 恭喜！${ATTR_MAP[attr]}升級並獲得寶物：${prize.name}！`), 500);
+            }
+        }
+        save(); renderDaily();
+    }
+
+    function addNewTask() {
+        const name = document.getElementById('task-name').value;
+        const days = Array.from(document.querySelectorAll('.day-btn.selected')).map(b => parseInt(b.dataset.day));
+        if(!name) return alert("請輸入名稱");
+        data.customTasks.push({ id: Date.now(), name: name, attr: document.getElementById('task-attr').value, exp: document.getElementById('task-exp').value, days: days });
+        save(); renderSettingList();
+        document.getElementById('task-name').value = '';
+    }
+
     function renderDaily() {
         const now = new Date();
         const todayStr = now.toLocaleDateString();
@@ -165,59 +228,14 @@
         const list = document.getElementById('daily-list');
         list.innerHTML = '';
         const doneArr = data.log[todayStr] || [];
-        const todaysTasks = data.customTasks.filter(t => t.days.includes(dayOfWeek));
-        
-        todaysTasks.forEach(t => {
+        data.customTasks.filter(t => t.days.includes(dayOfWeek)).forEach(t => {
             const isDone = doneArr.includes(t.name);
-            list.innerHTML += `
-                <div class="daily-item ${isDone ? 'done' : ''}" onclick="completeTask('${t.attr}', '${t.name}', ${t.exp})">
-                    <div class="check-circle">${isDone ? '✓' : ''}</div>
-                    <div style="flex:1"><b>${t.name}</b><br><small>提升項目：${ATTR_MAP[t.attr]}</small></div>
-                </div>`;
+            list.innerHTML += `<div class="daily-item ${isDone ? 'done' : ''}" onclick="completeTask('${t.attr}', '${t.name}', ${t.exp})"><div class="check-circle">${isDone ? '✓' : ''}</div><div style="flex:1"><b>${t.name}</b><br><small>${ATTR_MAP[t.attr]}</small></div></div>`;
         });
-    }
-
-    function completeTask(attr, name, exp) {
-        const today = new Date().toLocaleDateString();
-        if(!data.log[today]) data.log[today] = [];
-        if(data.log[today].includes(name)) return;
-        data.log[today].push(name);
-        data.exps[attr] += parseInt(exp);
-        if(data.exps[attr] >= 100) {
-            data.exps[attr] = 0; data.stats[attr]++;
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        }
-        save(); renderDaily();
-        alert(`🎉 ${name} 完成！`);
-    }
-
-    function addNewTask() {
-        const name = document.getElementById('task-name').value;
-        const days = Array.from(document.querySelectorAll('.day-btn.selected')).map(b => parseInt(b.dataset.day));
-        if(!name) return alert("請輸入任務名稱");
-        data.customTasks.push({ id: Date.now(), name: name, attr: document.getElementById('task-attr').value, exp: document.getElementById('task-exp').value, days: days });
-        save(); renderSettingList();
-        document.getElementById('task-name').value = '';
     }
 
     function renderSettingList() {
         const list = document.getElementById('config-task-list');
         list.innerHTML = '';
         data.customTasks.forEach((t, i) => {
-            list.innerHTML += `<div class="task-card"><div><b>${t.name}</b><br><small>${ATTR_MAP[t.attr]} | 週${t.days.join(',')}</small></div><button style="background:#ff4444;color:white;border:none;padding:5px 10px;border-radius:5px;" onclick="data.customTasks.splice(${i},1);save();renderSettingList();">刪除</button></div>`;
-        });
-    }
-
-    function renderHistory() {
-        const list = document.getElementById('calendar-list');
-        list.innerHTML = '';
-        Object.keys(data.log).sort().reverse().forEach(date => {
-            list.innerHTML += `<div class="container" style="background:white; border:1px solid #c0b090;"><b>📅 ${date}</b><br><div style="margin-top:5px; color:#8b0000;">${data.log[date].map(t => '✅ '+t).join(' ')}</div></div>`;
-        });
-    }
-
-    function save() { localStorage.setItem('hero_v5', JSON.stringify(data)); }
-    renderStatus();
-</script>
-</body>
-</html>
+            list.innerHTML += `<div class="task-card" style="background:#fff; padding:10px; margin-bottom:5px; border-

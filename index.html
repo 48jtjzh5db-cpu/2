@@ -3,47 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>安紘的英雄傳說-進階管理版</title>
+    <title>安紘的英雄傳說-終極管理版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { --main-red: #8b0000; --dark: #4a3b2a; --gold: #f59e0b; }
+        :root { --main-red: #8b0000; --dark: #4a3b2a; --gold: #f59e0b; --paper: #f5f1e8; }
         body { font-family: 'Noto Serif TC', serif; background-color: #dcd6c5; margin: 0; padding: 0; color: #2c241b; }
         
-        /* 導覽列 */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--dark); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--dark); display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; }
         .nav-item { color: #888; text-decoration: none; font-size: 0.7rem; text-align: center; flex: 1; cursor: pointer; }
         .nav-item.active { color: #fff; }
-        .nav-item div { font-size: 1.4rem; }
+        .nav-item div { font-size: 1.6rem; margin-bottom: 2px; }
 
-        /* 頁面切換 */
-        .page { display: none; padding: 15px 15px 80px 15px; max-width: 600px; margin: 0 auto; animation: fadeIn 0.3s ease; }
+        .page { display: none; padding: 15px 15px 100px 15px; max-width: 600px; margin: 0 auto; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 卡片 */
         .container { border: 4px double var(--main-red); padding: 15px; background: rgba(245, 241, 232, 0.95); box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 15px; }
         h1 { text-align: center; border-bottom: 2px solid var(--main-red); margin: 0 0 15px 0; font-size: 1.4rem; }
 
-        /* 表單樣式 */
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-family: inherit; }
-        .weekday-picker { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
-        .day-btn { padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px; background: #fff; cursor: pointer; font-size: 0.8rem; }
-        .day-btn.selected { background: var(--main-red); color: #fff; border-color: var(--main-red); }
+        /* 頭像樣式 */
+        .avatar-box { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 10px; }
+        .avatar { width: 90px; height: 90px; border: 3px solid var(--main-red); border-radius: 50%; background: #333 no-repeat center/cover; }
 
-        /* 任務列表 */
-        .task-card { background: #fff; border: 1px solid #c0b090; padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-del { background: #ff4444; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; }
-        
-        /* 每日任務頁 */
+        /* 屬性進度條樣式 */
+        .attr-row { background: white; padding: 10px; border-radius: 10px; border: 1px solid #c0b090; margin-bottom: 8px; }
+        .attr-info { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; }
+        .bar-outer { width: 100%; height: 10px; background: #eee; border-radius: 5px; overflow: hidden; border: 1px solid #ccc; }
+        .bar-inner { height: 100%; background: linear-gradient(90deg, #f59e0b, #d35400); width: 0%; transition: 0.5s; }
+
+        /* 任務清單樣式 */
         .daily-item { display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #c0b090; }
         .daily-item.done { opacity: 0.5; background: #eee; }
-        .check-circle { width: 28px; height: 28px; border: 2px solid var(--main-red); border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; }
+        .check-circle { width: 28px; height: 28px; border: 2px solid var(--main-red); border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        .btn-save { background: var(--dark); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 10px; }
+        /* 表單樣式 */
+        .form-group { margin-bottom: 15px; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; font-size: 1rem; }
+        .weekday-picker { display: flex; gap: 5px; flex-wrap: wrap; }
+        .day-btn { padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
+        .day-btn.selected { background: var(--main-red); color: white; border-color: var(--main-red); }
+        .btn-save { background: var(--dark); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 1.1rem; }
+        
+        .task-card { background: #fff; border: 1px solid #ccc; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
@@ -58,8 +61,14 @@
 <div id="status" class="page active">
     <div class="container">
         <h1>🛡️ 英雄成長紀錄</h1>
-        <div style="text-align:center"><div style="font-size:1.4rem; font-weight:900;">鄭安紘</div><div style="color:var(--main-red)">Lv.<span id="total-lv">1</span></div></div>
-        <div style="height:250px"><canvas id="radar"></canvas></div>
+        <div class="avatar-box">
+            <div id="hero-photo" class="avatar" style="background-image: url('photo.jpg');"></div>
+            <div style="text-align: left;">
+                <div style="font-size: 1.6rem; font-weight: 900;">鄭安紘</div>
+                <div style="color: var(--main-red); font-weight: bold;">總等級 Lv.<span id="total-lv">1</span></div>
+            </div>
+        </div>
+        <div style="height:250px;"><canvas id="radar"></canvas></div>
         <div id="attr-list"></div>
     </div>
 </div>
@@ -67,7 +76,7 @@
 <div id="daily" class="page">
     <div class="container">
         <h1>📜 每日挑戰</h1>
-        <p id="today-info" style="text-align:center; font-size:0.8rem; color:var(--main-red);"></p>
+        <p id="today-info" style="text-align:center; font-weight: bold; color: var(--main-red);"></p>
         <div id="daily-list"></div>
     </div>
 </div>
@@ -82,124 +91,89 @@
 <div id="setting" class="page">
     <div class="container">
         <h1>⚙️ 任務自訂</h1>
-        <div class="form-group">
-            <label>任務名稱 (例：練習足球)</label>
-            <input type="text" id="task-name" placeholder="請輸入任務名稱">
-        </div>
-        <div class="form-group">
-            <label>對應數值項目</label>
-            <select id="task-attr">
-                <option value="chi">📖 國語</option>
-                <option value="math">🧠 數學</option>
-                <option value="eng">🗣️ 英文</option>
-                <option value="ball">⚽ 運動</option>
-                <option value="life">🧹 生活</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>每次獲得經驗值</label>
-            <select id="task-exp">
-                <option value="20">20 (普通任務)</option>
-                <option value="34">34 (重要任務 - 點3下升級)</option>
-                <option value="50">50 (大挑戰 - 點2下升級)</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>需執行的星期</label>
-            <div class="weekday-picker" id="week-picker">
-                <div class="day-btn selected" data-day="1">一</div>
-                <div class="day-btn selected" data-day="2">二</div>
-                <div class="day-btn selected" data-day="3">三</div>
-                <div class="day-btn selected" data-day="4">四</div>
-                <div class="day-btn selected" data-day="5">五</div>
-                <div class="day-btn selected" data-day="6">六</div>
-                <div class="day-btn selected" data-day="0">日</div>
-            </div>
-        </div>
+        <div class="form-group"><label>任務名稱</label><input type="text" id="task-name" placeholder="例如：背 5 個英文單字"></div>
+        <div class="form-group"><label>對應數值</label><select id="task-attr"><option value="chi">📖 國語</option><option value="math">🧠 數學</option><option value="eng">🗣️ 英文</option><option value="ball">⚽ 運動</option><option value="life">🧹 生活</option></select></div>
+        <div class="form-group"><label>獲得經驗值</label><select id="task-exp"><option value="20">20 (普通)</option><option value="34">34 (重要 - 點3下升級)</option><option value="50">50 (大挑戰)</option></select></div>
+        <div class="form-group"><label>星期幾執行</label><div class="weekday-picker" id="week-picker"><div class="day-btn selected" data-day="1">一</div><div class="day-btn selected" data-day="2">二</div><div class="day-btn selected" data-day="3">三</div><div class="day-btn selected" data-day="4">四</div><div class="day-btn selected" data-day="5">五</div><div class="day-btn selected" data-day="6">六</div><div class="day-btn selected" data-day="0">日</div></div></div>
         <button class="btn-save" onclick="addNewTask()">＋ 新增任務</button>
     </div>
-
-    <div class="container">
-        <h1>📋 現有任務清單</h1>
-        <div id="config-task-list"></div>
-    </div>
+    <div class="container"><h1>📋 現有任務</h1><div id="config-task-list"></div></div>
 </div>
 
 <script>
     const ATTR_MAP = { chi:'國語', math:'數學', eng:'英文', ball:'運動', life:'生活' };
-    let data = JSON.parse(localStorage.getItem('hero_v4')) || {
+    const EMOJI_MAP = { chi:'📖', math:'🧠', eng:'🗣️', ball:'⚽', life:'🧹' };
+    
+    let data = JSON.parse(localStorage.getItem('hero_v5')) || {
         stats: { chi:10, math:10, eng:10, ball:10, life:10 },
         exps: { chi:0, math:0, eng:0, ball:0, life:0 },
         log: {},
         customTasks: [
-            { id: Date.now(), name: "國語練習", attr: "chi", exp: 34, days: [1,2,3,4,5] },
-            { id: Date.now()+1, name: "數學作業", attr: "math", exp: 34, days: [1,2,3,4,5] },
-            { id: Date.now()+2, name: "足球特訓", attr: "ball", exp: 50, days: [6,0] }
+            { id: 1, name: "國語讀報", attr: "chi", exp: 34, days: [1,2,3,4,5] },
+            { id: 2, name: "數學口算", attr: "math", exp: 34, days: [1,2,3,4,5] },
+            { id: 3, name: "足球練習", attr: "ball", exp: 50, days: [6,0] }
         ]
     };
 
-    // 介面切換
     function showPage(pageId, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
         el.classList.add('active');
+        if(pageId === 'status') renderStatus();
         if(pageId === 'daily') renderDaily();
         if(pageId === 'history') renderHistory();
         if(pageId === 'setting') renderSettingList();
     }
 
-    // 雷達圖
     const ctx = document.getElementById('radar').getContext('2d');
     const chart = new Chart(ctx, {
         type: 'radar',
         data: {
             labels: Object.values(ATTR_MAP),
-            datasets: [{ data: [10,10,10,10,10], backgroundColor: 'rgba(139, 0, 0, 0.2)', borderColor: '#8b0000', borderWidth: 2 }]
+            datasets: [{ data: Object.values(data.stats), backgroundColor: 'rgba(139, 0, 0, 0.2)', borderColor: '#8b0000', borderWidth: 2 }]
         },
         options: { scales: { r: { suggestedMin: 0, suggestedMax: 50, ticks: { display: false } } }, plugins: { legend: { display: false } } }
     });
 
-    // 星期選擇器
     document.querySelectorAll('.day-btn').forEach(btn => {
         btn.onclick = () => btn.classList.toggle('selected');
     });
 
-    function addNewTask() {
-        const name = document.getElementById('task-name').value;
-        const days = Array.from(document.querySelectorAll('.day-btn.selected')).map(b => parseInt(b.dataset.day));
-        if(!name) return alert("請輸入名稱");
-        data.customTasks.push({
-            id: Date.now(),
-            name: name,
-            attr: document.getElementById('task-attr').value,
-            exp: parseInt(document.getElementById('task-exp').value),
-            days: days
+    function renderStatus() {
+        const list = document.getElementById('attr-list');
+        list.innerHTML = '';
+        let total = 0;
+        Object.keys(ATTR_MAP).forEach(key => {
+            total += data.stats[key];
+            list.innerHTML += `
+                <div class="attr-row">
+                    <div class="attr-info"><span>${EMOJI_MAP[key]} ${ATTR_MAP[key]}</span><span>Lv.${data.stats[key]}</span></div>
+                    <div class="bar-outer"><div class="bar-inner" style="width:${data.exps[key]}%"></div></div>
+                </div>`;
         });
-        save();
-        renderSettingList();
-        document.getElementById('task-name').value = '';
+        document.getElementById('total-lv').innerText = Math.floor(total / 5);
+        chart.data.datasets[0].data = Object.keys(ATTR_MAP).map(k => data.stats[k]);
+        chart.update();
     }
 
     function renderDaily() {
         const now = new Date();
         const todayStr = now.toLocaleDateString();
         const dayOfWeek = now.getDay();
-        document.getElementById('today-info').innerText = `今天是星期${['日','一','二','三','四','五','六'][dayOfWeek]}`;
-        
+        document.getElementById('today-info').innerText = `📅 星期${['日','一','二','三','四','五','六'][dayOfWeek]}`;
         const list = document.getElementById('daily-list');
         list.innerHTML = '';
         const doneArr = data.log[todayStr] || [];
-
         const todaysTasks = data.customTasks.filter(t => t.days.includes(dayOfWeek));
+        
         todaysTasks.forEach(t => {
             const isDone = doneArr.includes(t.name);
             list.innerHTML += `
                 <div class="daily-item ${isDone ? 'done' : ''}" onclick="completeTask('${t.attr}', '${t.name}', ${t.exp})">
                     <div class="check-circle">${isDone ? '✓' : ''}</div>
-                    <div><b>${t.name}</b><br><small>加成：${ATTR_MAP[t.attr]}</small></div>
-                </div>
-            `;
+                    <div style="flex:1"><b>${t.name}</b><br><small>提升項目：${ATTR_MAP[t.attr]}</small></div>
+                </div>`;
         });
     }
 
@@ -207,41 +181,30 @@
         const today = new Date().toLocaleDateString();
         if(!data.log[today]) data.log[today] = [];
         if(data.log[today].includes(name)) return;
-
         data.log[today].push(name);
-        data.exps[attr] += exp;
+        data.exps[attr] += parseInt(exp);
         if(data.exps[attr] >= 100) {
-            data.exps[attr] = 0;
-            data.stats[attr]++;
+            data.exps[attr] = 0; data.stats[attr]++;
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
-        save(); renderDaily(); renderStatus();
-        alert(`任務完成！${ATTR_MAP[attr]}能力提升！`);
+        save(); renderDaily();
+        alert(`🎉 ${name} 完成！`);
     }
 
-    function renderStatus() {
-        let total = 0;
-        const list = document.getElementById('attr-list');
-        list.innerHTML = '';
-        Object.keys(ATTR_MAP).forEach(key => {
-            total += data.stats[key];
-            list.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${ATTR_MAP[key]}</span><span>Lv.${data.stats[key]}</span></div>`;
-        });
-        document.getElementById('total-lv').innerText = Math.floor(total / 5);
-        chart.data.datasets[0].data = Object.keys(ATTR_MAP).map(k => data.stats[k]);
-        chart.update();
+    function addNewTask() {
+        const name = document.getElementById('task-name').value;
+        const days = Array.from(document.querySelectorAll('.day-btn.selected')).map(b => parseInt(b.dataset.day));
+        if(!name) return alert("請輸入任務名稱");
+        data.customTasks.push({ id: Date.now(), name: name, attr: document.getElementById('task-attr').value, exp: document.getElementById('task-exp').value, days: days });
+        save(); renderSettingList();
+        document.getElementById('task-name').value = '';
     }
 
     function renderSettingList() {
         const list = document.getElementById('config-task-list');
         list.innerHTML = '';
-        data.customTasks.forEach((t, index) => {
-            list.innerHTML += `
-                <div class="task-card">
-                    <div><b>${t.name}</b> (${ATTR_MAP[t.attr]})<br><small>週：${t.days.sort().join(',')}</small></div>
-                    <button class="btn-del" onclick="data.customTasks.splice(${index},1);save();renderSettingList();">刪除</button>
-                </div>
-            `;
+        data.customTasks.forEach((t, i) => {
+            list.innerHTML += `<div class="task-card"><div><b>${t.name}</b><br><small>${ATTR_MAP[t.attr]} | 週${t.days.join(',')}</small></div><button style="background:#ff4444;color:white;border:none;padding:5px 10px;border-radius:5px;" onclick="data.customTasks.splice(${i},1);save();renderSettingList();">刪除</button></div>`;
         });
     }
 
@@ -249,11 +212,11 @@
         const list = document.getElementById('calendar-list');
         list.innerHTML = '';
         Object.keys(data.log).sort().reverse().forEach(date => {
-            list.innerHTML += `<div style="background:#fff; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc;"><b>📅 ${date}</b><br>${data.log[date].join(', ')}</div>`;
+            list.innerHTML += `<div class="container" style="background:white; border:1px solid #c0b090;"><b>📅 ${date}</b><br><div style="margin-top:5px; color:#8b0000;">${data.log[date].map(t => '✅ '+t).join(' ')}</div></div>`;
         });
     }
 
-    function save() { localStorage.setItem('hero_v4', JSON.stringify(data)); }
+    function save() { localStorage.setItem('hero_v5', JSON.stringify(data)); }
     renderStatus();
 </script>
 </body>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>自訂英雄成長錄</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        // ==========================================
+        // 🔧 勇者設定區：請在這裡修改內容
+        // ==========================================
+        const MY_CONFIG = {
+            heroName: "在此輸入名字",     // 1. 改成小孩的名字
+            avatarFile: "photo.jpg",    // 2. 照片檔名 (要把照片跟這檔案放一起)
+            bgFile: "bg.jpg",           // 3. 背景圖檔名 (如果不放背景會維持古風紙張)
+            
+            // 4. 改科目名稱與任務 (最多5個)
+            subjects: [
+                { id: 'chi',  name: '國語', task: '背單字 / 閱讀' },
+                { id: 'math', name: '數學', task: '計算練習 / 寫作業' },
+                { id: 'eng',  name: '英文', task: '聽力 / 朗讀' },
+                { id: 'ball', name: '足球', task: '運球 / 射門練習' },
+                { id: 'life', name: '生活', task: '整理書包 / 家事' }
+            ]
+        };
+        // ==========================================
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap');
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background-color: #dcd6c5;
+            /* 背景圖邏輯 */
+            background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity="0.05"/%3E%3C/svg%3E');
+            background-size: cover; background-attachment: fixed; background-position: center;
+            margin: 0; padding: 10px; color: #2c241b; touch-action: manipulation;
+        }
+        .container {
+            max-width: 650px; margin: 0 auto; border: 4px double #4a3b2a; padding: 20px;
+            background: rgba(245, 241, 232, 0.9); box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative;
+        }
+        .corner { position: absolute; width: 15px; height: 15px; border: 3px solid #8b0000; }
+        .tl { top: 6px; left: 6px; border-right: none; border-bottom: none; }
+        .tr { top: 6px; right: 6px; border-left: none; border-bottom: none; }
+        .bl { bottom: 6px; left: 6px; border-right: none; border-top: none; }
+        .br { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+        
+        h1 { text-align: center; border-bottom: 2px solid #8b0000; padding-bottom: 10px; margin: 0 0 20px 0; }
+        .header { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px; }
+        .avatar {
+            width: 90px; height: 90px; border: 3px solid #8b0000; border-radius: 50%;
+            background-color: #333; background-size: cover; background-position: center;
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;
+        }
+        .chart-box { height: 280px; width: 100%; margin-bottom: 20px; }
+        .stat-item {
+            background: rgba(255,255,255,0.6); border: 1px solid #c0b090;
+            padding: 10px; border-radius: 8px; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .bar-bg { width: 100px; height: 8px; background: #ccc; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
+        .bar-fill { height: 100%; background: #d35400; width: 0%; transition: 0.3s; }
+        button { 
+            background: #4a3b2a; color: #f5f1e8; border: none; padding: 8px 15px; 
+            border-radius: 4px; cursor: pointer; box-shadow: 2px 2px 0 #000; font-family: inherit;
+        }
+        button:active { transform: translate(2px, 2px); box-shadow: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+
+    <h1 id="title-name">英雄成長紀錄</h1>
+
+    <div class="header">
+        <div id="hero-img" class="avatar">?</div>
+        <div style="text-align:left">
+            <div id="display-name" style="font-size:1.6rem; font-weight:900;">載入中...</div>
+            <div style="color:#666">總能力點數：<span id="total-val">0</span></div>
+        </div>
+    </div>
+
+    <div class="chart-box"><canvas id="radar"></canvas></div>
+    <div id="list"></div>
+    <div style="text-align:center; margin-top:30px; color:#aaa; font-size:0.7rem; cursor:pointer;" onclick="localStorage.clear();location.reload();">重置數據</div>
+</div>
+
+<script>
+    // 套用背景
+    if(MY_CONFIG.bgFile) document.body.style.backgroundImage = `url('${MY_CONFIG.bgFile}'), ${document.body.style.backgroundImage}`;
+    
+    // 初始化英雄資訊
+    document.getElementById('display-name').innerText = MY_CONFIG.heroName;
+    const imgDiv = document.getElementById('hero-img');
+    if(MY_CONFIG.avatarFile) {
+        imgDiv.style.backgroundImage = `url('${MY_CONFIG.avatarFile}')`;
+        imgDiv.innerText = '';
+    } else {
+        imgDiv.innerText = MY_CONFIG.heroName[0];
+    }
+
+    // 數據邏輯
+    let data = JSON.parse(localStorage.getItem('hero_save_v2')) || {};
+    MY_CONFIG.subjects.forEach(s => { if(!data[s.id]) data[s.id] = { val:30, exp:0 }; });
+
+    // 雷達圖
+    const ctx = document.getElementById('radar').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: MY_CONFIG.subjects.map(s => s.name),
+            datasets: [{
+                data: MY_CONFIG.subjects.map(s => data[s.id].val),
+                backgroundColor: 'rgba(139, 0, 0, 0.2)', borderColor: '#8b0000', borderWidth: 2
+            }]
+        },
+        options: {
+            scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false }, pointLabels: { font: { size: 16, weight: 'bold' } } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 渲染清單
+    function render() {
+        const list = document.getElementById('list');
+        list.innerHTML = '';
+        let total = 0;
+        MY_CONFIG.subjects.forEach((s, idx) => {
+            total += data[s.id].val;
+            list.innerHTML += `
+                <div class="stat-item">
+                    <div><b>${s.name}</b><br><small>${s.task}</small></div>
+                    <div style="font-size:1.5rem; color:#8b0000; font-weight:bold;">${data[s.id].val}</div>
+                    <div style="text-align:right">
+                        <div class="bar-bg"><div class="bar-fill" style="width:${data[s.id].exp}%"></div></div>
+                        <button onclick="add('${s.id}', ${idx})">練習 (+Exp)</button>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('total-val').innerText = total;
+        localStorage.setItem('hero_save_v2', JSON.stringify(data));
+    }
+
+    function add(id, idx) {
+        data[id].exp += 20;
+        if(data[id].exp >= 100) {
+            data[id].exp = 0;
+            data[id].val++;
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            chart.data.datasets[0].data[idx] = data[id].val;
+            chart.update();
+        }
+        render();
+    }
+    render();
+</script>
+</body>
+</html>

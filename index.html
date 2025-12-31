@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>安紘的英雄傳說-至尊存檔版</title>
+    <title>安紘的英雄傳說-完整終極版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
@@ -73,7 +73,7 @@
 
 <div id="daily" class="page">
     <div class="container">
-        <h1>📜 每日挑戰</h1>
+        <h1>📜 任務大廳</h1>
         <p id="today-info" style="text-align:center; font-weight:bold; color:var(--main-red);"></p>
         <div id="special-task-list"></div>
         <hr id="special-hr" style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0; display:none;">
@@ -83,18 +83,17 @@
 
 <div id="history" class="page">
     <div class="container">
-        <h1>📅 冒險日曆</h1>
+        <h1>📅 冒險足跡</h1>
         <div id="calendar-list"></div>
     </div>
 </div>
 
 <div id="setting" class="page">
     <div class="container">
-        <h1>💾 進度備份與還原</h1>
-        <p style="font-size: 0.7rem; color: #666;">防止資料遺失，請定期複製進度存於 Line 或記事本</p>
-        <button class="btn-save" onclick="exportData()" style="background:#2563eb">📤 複製進度代碼 (備份)</button>
-        <textarea id="import-area" style="margin-top:10px; height:60px; font-size:0.7rem;" placeholder="貼上備份代碼於此..."></textarea>
-        <button class="btn-save" onclick="importData()" style="background:#059669">📥 貼上並還原進度</button>
+        <h1>💾 資料備份與還原</h1>
+        <button class="btn-save" onclick="exportData()" style="background:#2563eb">📤 點我複製備份代碼</button>
+        <textarea id="import-area" style="margin-top:10px; height:60px;" placeholder="在此貼上代碼並按下方還原..."></textarea>
+        <button class="btn-save" onclick="importData()" style="background:#059669">📥 執行代碼還原</button>
     </div>
 
     <div class="container">
@@ -105,13 +104,13 @@
 
     <div class="container">
         <h1>⚔️ 任務與成就設定</h1>
-        <input type="text" id="task-name" placeholder="名稱 (例：段考第一名 / 每日英文)">
+        <input type="text" id="task-name" placeholder="名稱 (如：寫英文作業)">
         <select id="task-attr">
             <option value="chi">📖 國語</option><option value="math">🧠 數學</option>
             <option value="eng">🗣️ 英文</option><option value="ball">⚽ 運動</option><option value="life">🧹 生活</option>
         </select>
         <select id="task-type" onchange="toggleDayPicker()">
-            <option value="normal">📅 一般每日任務</option>
+            <option value="normal">📅 每日重複任務</option>
             <option value="special">🏆 特別成就 (高獎勵)</option>
         </select>
         <div id="weekday-section">
@@ -124,6 +123,14 @@
         <input type="number" id="task-exp-input" placeholder="獎勵 XP (例：20)">
         <button class="btn-save" onclick="addNewTask()">＋ 新增任務/成就</button>
         <div id="config-task-list"></div>
+    </div>
+
+    <div class="container">
+        <h1>🎁 寶物池設定</h1>
+        <input type="text" id="item-name-input" placeholder="寶物名稱 (如：喝可樂)">
+        <input type="text" id="item-icon-input" placeholder="圖示 (如：🥤)">
+        <button class="btn-save" onclick="addNewItem()">＋ 新增到寶物池</button>
+        <div id="config-item-list"></div>
     </div>
 </div>
 
@@ -138,33 +145,28 @@
         life: ["勤務兵", "班長", "排長", "連長", "營長", "旅長", "師長", "軍長", "司令", "大將軍", "👑 統帥"]
     };
 
-    const STORAGE_KEY = 'hero_data_v18_permanent';
+    const STORAGE_KEY = 'hero_data_v19_stable';
     let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
         stats: { chi:1, math:1, eng:1, ball:1, life:1 },
         exps: { chi:0, math:0, eng:0, ball:0, life:0 },
         log: {}, inventory: [], dropRate: 50,
         customTasks: [],
-        itemPool: [{ name: '點心獎勵', icon: '🍪' }]
+        itemPool: [{ name: '小點心', icon: '🍪' }]
     };
 
     function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 
     function exportData() {
         const str = btoa(encodeURIComponent(JSON.stringify(data)));
-        navigator.clipboard.writeText(str).then(() => alert("進度已轉為代碼並複製！請貼到記事本保存。"));
+        navigator.clipboard.writeText(str).then(() => alert("進度已轉為代碼並複製！請存於 Line 或記事本。"));
     }
 
     function importData() {
         try {
             const str = document.getElementById('import-area').value;
-            const json = JSON.parse(decodeURIComponent(atob(str)));
-            if (json.stats) {
-                data = json;
-                save();
-                alert("還原成功！正在重新載入...");
-                location.reload();
-            }
-        } catch(e) { alert("代碼格式不正確，還原失敗。"); }
+            const json = JSON.parse(decodeURIComponent(atob(str.trim())));
+            if (json.stats) { data = json; save(); alert("還原成功！正在重新載入..."); location.reload(); }
+        } catch(e) { alert("代碼不正確！"); }
     }
 
     function showPage(pageId, el) {
@@ -186,51 +188,38 @@
     });
 
     function renderStatus() {
-        const list = document.getElementById('attr-list');
-        list.innerHTML = '';
-        let sum = 0;
+        const list = document.getElementById('attr-list'); list.innerHTML = ''; let sum = 0;
         Object.keys(ATTR_MAP).forEach(k => {
             sum += data.stats[k];
             const rank = RANKS[k][Math.min(Math.floor(data.stats[k] / 10), 10)];
-            list.innerHTML += `<div class="attr-row">
-                <div class="attr-info"><span>${EMOJI_MAP[k]} ${ATTR_MAP[k]} Lv.${data.stats[k]}</span><span class="rank-tag">${rank}</span></div>
-                <div class="bar-outer"><div class="bar-inner" style="width:${data.exps[k]}%"></div></div>
-            </div>`;
+            list.innerHTML += `<div class="attr-row"><div class="attr-info"><span>${EMOJI_MAP[k]} ${ATTR_MAP[k]} Lv.${data.stats[k]}</span><span class="rank-tag">${rank}</span></div><div class="bar-outer"><div class="bar-inner" style="width:${data.exps[k]}%"></div></div></div>`;
         });
         document.getElementById('total-lv').innerText = Math.floor(sum / 5);
-        chart.data.datasets[0].data = Object.values(data.stats);
-        chart.update();
+        chart.data.datasets[0].data = Object.values(data.stats); chart.update();
         renderInventory();
     }
 
     function renderDaily() {
-        const today = new Date().toLocaleDateString();
-        const day = new Date().getDay();
+        const today = new Date().toLocaleDateString(); const day = new Date().getDay();
         document.getElementById('today-info').innerText = today + " (週" + "日一二三四五六"[day] + ")";
-        const dList = document.getElementById('daily-list');
-        const sList = document.getElementById('special-task-list');
-        const shr = document.getElementById('special-hr');
-        dList.innerHTML = '<h2>📅 每日任務</h2>';
-        sList.innerHTML = '<h2>🏆 特別成就獎勵</h2>';
-        const doneArr = data.log[today] || [];
-        let hasSpecial = false;
+        const dList = document.getElementById('daily-list'); const sList = document.getElementById('special-task-list'); const shr = document.getElementById('special-hr');
+        dList.innerHTML = '<h2>📅 每日任務</h2>'; sList.innerHTML = '<h2>🏆 特別成就</h2>';
+        const doneArr = data.log[today] || []; let hasSpecial = false;
         data.customTasks.forEach(t => {
             const isDone = doneArr.includes(t.name);
-            const isSpecial = t.type === 'special';
-            if (isSpecial || (t.days && t.days.includes(day))) {
+            if (t.type === 'special' || (t.days && t.days.includes(day))) {
                 const item = document.createElement('div');
-                item.className = `daily-item ${isSpecial ? 'special' : ''} ${isDone ? 'done' : ''}`;
-                item.innerHTML = `<div class="check-circle">${isDone?'✓':''}</div><div style="flex:1"><b>${isSpecial?'[成就] ':''}${t.name}</b><br><small>${ATTR_MAP[t.attr]} +${t.exp}XP</small></div>`;
+                item.className = `daily-item ${t.type==='special'?'special':''} ${isDone?'done':''}`;
+                item.innerHTML = `<div class="check-circle">${isDone?'✓':''}</div><div style="flex:1"><b>${t.type==='special'?'[成就] ':''}${t.name}</b><br><small>${ATTR_MAP[t.attr]} +${t.exp}XP</small></div>`;
                 item.onclick = () => toggleTask(t.attr, t.name, t.exp, t.type);
-                if(isSpecial) { sList.appendChild(item); hasSpecial = true; } else dList.appendChild(item);
+                if(t.type==='special') { sList.appendChild(item); hasSpecial = true; } else dList.appendChild(item);
             }
         });
         shr.style.display = hasSpecial ? 'block' : 'none';
     }
 
     function toggleTask(attr, name, exp, type) {
-        const today = new Date().toLocaleDateString();
-        if(!data.log[today]) data.log[today] = [];
+        const today = new Date().toLocaleDateString(); if(!data.log[today]) data.log[today] = [];
         const idx = data.log[today].indexOf(name);
         if(idx === -1) { data.log[today].push(name); addExp(attr, parseInt(exp)); }
         else if(confirm(`恢復「${name}」？`)) { data.log[today].splice(idx, 1); removeExp(attr, parseInt(exp)); }
@@ -276,9 +265,14 @@
             editArea.innerHTML += `<div class="edit-grid"><span>${ATTR_MAP[k]}</span><input type="number" id="edit-lv-${k}" value="${data.stats[k]}"><input type="number" id="edit-exp-${k}" value="${data.exps[k]}"></div>`;
         });
         const tList = document.getElementById('config-task-list');
-        tList.innerHTML = '<h2>現有清單</h2>';
+        tList.innerHTML = '<h2>現有任務清單</h2>';
         data.customTasks.forEach((t, i) => {
             tList.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; background:#fff; padding:8px; border-radius:8px; font-size:0.8rem;"><span>${t.name}</span><button class="btn-del" onclick="data.customTasks.splice(${i},1);save();renderSetting();">刪除</button></div>`;
+        });
+        const iList = document.getElementById('config-item-list');
+        iList.innerHTML = '<h2>現有寶物清單</h2>';
+        data.itemPool.forEach((item, i) => {
+            iList.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; background:#fff; padding:8px; border-radius:8px; font-size:0.8rem;"><span>${item.icon} ${item.name}</span><button class="btn-del" onclick="data.itemPool.splice(${i},1);save();renderSetting();">刪除</button></div>`;
         });
     }
 
@@ -290,22 +284,27 @@
         save(); alert("數值已儲存！");
     }
 
+    function addNewItem() {
+        const name = document.getElementById('item-name-input').value;
+        const icon = document.getElementById('item-icon-input').value || '🎁';
+        if(!name) return alert("請輸入寶物名稱");
+        data.itemPool.push({ name, icon });
+        save(); renderSetting(); document.getElementById('item-name-input').value = '';
+    }
+
     function renderInventory() {
-        const inv = document.getElementById('inventory');
-        inv.innerHTML = '';
+        const inv = document.getElementById('inventory'); inv.innerHTML = '';
         for(let i=0; i<8; i++) {
             const item = data.inventory[i];
             const slot = document.createElement('div');
-            slot.className = 'inv-slot' + (item ? ' has-item' : '');
-            slot.innerHTML = item ? item.icon : '';
+            slot.className = 'inv-slot' + (item ? ' has-item' : ''); slot.innerHTML = item ? item.icon : '';
             if(item) slot.onclick = () => { if(confirm(`使用「${item.name}」？`)) { data.inventory.splice(i,1); save(); renderInventory(); } };
             inv.appendChild(slot);
         }
     }
 
     function renderHistory() {
-        const list = document.getElementById('calendar-list');
-        list.innerHTML = '';
+        const list = document.getElementById('calendar-list'); list.innerHTML = '';
         Object.keys(data.log).sort().reverse().forEach(d => {
             list.innerHTML += `<div class="container" style="border-width:2px; font-size:0.75rem;"><b>${d}</b><br>${data.log[d].join(', ')}</div>`;
         });

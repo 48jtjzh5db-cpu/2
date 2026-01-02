@@ -1,0 +1,612 @@
+/* ============================================
+   安紘的英雄傳說 - 樣式表
+   ============================================ */
+
+/* CSS變數定義 */
+:root {
+    --main-red: #8b0000;
+    --dark: #4a3b2a;
+    --gold: #f59e0b;
+    --rank-gold: #b45309;
+    --special-purple: #6b21a8;
+}
+
+/* 基礎樣式 */
+body {
+    font-family: 'Noto Serif TC', serif;
+    background-color: #dcd6c5;
+    margin: 0;
+    padding: 0;
+    color: #2c241b;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 底部導航欄 */
+.nav-bar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: var(--dark);
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 0;
+    z-index: 100;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+}
+
+.nav-item {
+    color: #888;
+    text-decoration: none;
+    font-size: 0.75rem;
+    text-align: center;
+    flex: 1;
+    cursor: pointer;
+}
+
+.nav-item.active {
+    color: #fff;
+}
+
+.nav-item div {
+    font-size: 1.6rem;
+    margin-bottom: 2px;
+}
+
+/* 頁面切換動畫 */
+.page {
+    display: none;
+    padding: 15px 15px 110px 15px;
+    max-width: 600px;
+    margin: 0 auto;
+    animation: fadeIn 0.3s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 容器樣式 */
+.container {
+    border: 4px double var(--main-red);
+    padding: 15px;
+    background: rgba(245, 241, 232, 0.95);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+/* 標題樣式 */
+h1 {
+    text-align: center;
+    border-bottom: 2px solid var(--main-red);
+    margin: 0 0 15px 0;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+}
+
+h2 {
+    font-size: 1.1rem;
+    color: var(--main-red);
+    border-left: 4px solid var(--main-red);
+    padding-left: 8px;
+    margin: 20px 0 10px 0;
+}
+
+/* 頭像樣式 */
+.avatar {
+    width: 95px;
+    height: 95px;
+    border: 3px solid var(--main-red);
+    border-radius: 50%;
+    background: #333 no-repeat center/cover;
+}
+
+/* 屬性列樣式 */
+.attr-row {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #c0b090;
+    margin-bottom: 8px;
+}
+
+.attr-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.rank-tag {
+    color: var(--rank-gold);
+    font-size: 0.8rem;
+    background: rgba(180, 83, 9, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* 經驗值進度條 - 添加滑動動畫 */
+.bar-outer {
+    width: 100%;
+    height: 12px;
+    background: #eee;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+
+.bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #f59e0b, #d35400);
+    width: 0%;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+/* 進度條滑動動畫效果 */
+.bar-inner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: slideShine 2s infinite;
+}
+
+@keyframes slideShine {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* 每日任務項目 */
+.daily-item {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #c0b090;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.daily-item.special {
+    border: 2px solid var(--special-purple);
+    background: #f5f3ff;
+}
+
+.daily-item.done {
+    opacity: 0.6;
+    background: #e8f5e9;
+    border-color: #4caf50;
+}
+
+.check-circle {
+    width: 30px;
+    height: 30px;
+    border: 2.5px solid var(--main-red);
+    border-radius: 50%;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.done .check-circle {
+    background: #4caf50;
+    border-color: #4caf50;
+    color: white;
+}
+
+/* 表單元素 */
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-family: inherit;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+/* 星期選擇器 */
+.weekday-picker {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.day-btn {
+    flex: 1;
+    padding: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.day-btn.selected {
+    background: var(--main-red);
+    color: white;
+    border-color: var(--main-red);
+}
+
+/* 按鈕樣式 */
+.btn-save {
+    background: var(--dark);
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.btn-del {
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+/* 儲物箱網格 */
+.inv-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.inv-slot {
+    min-height: 100px;
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.inv-slot.has-item {
+    border-color: var(--main-red);
+    box-shadow: 0 2px 8px rgba(139, 0, 0, 0.2);
+}
+
+.inv-slot.has-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
+}
+
+.inv-item-icon {
+    font-size: 2.5rem;
+    margin-bottom: 5px;
+}
+
+.inv-item-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--main-red);
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.inv-item-function {
+    font-size: 0.75rem;
+    color: #666;
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* 編輯網格 */
+.edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 5px;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.8rem;
+}
+
+/* 升級提示畫面 */
+.level-up-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.level-up-overlay.show {
+    display: flex;
+}
+
+.level-up-content {
+    text-align: center;
+    color: white;
+    animation: levelUpBounce 0.5s ease;
+}
+
+.level-up-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.8);
+    color: var(--gold);
+}
+
+.level-up-message {
+    font-size: 1.8rem;
+    margin-top: 15px;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.level-up-attr {
+    font-size: 1.5rem;
+    margin-top: 10px;
+    color: var(--gold);
+}
+
+@keyframes levelUpBounce {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   寶箱系統樣式
+   ============================================ */
+
+/* 寶箱選擇覆蓋層 */
+.treasure-box-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+.treasure-box-overlay.show {
+    display: flex;
+}
+
+.treasure-box-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    max-width: 90%;
+    width: 500px;
+    text-align: center;
+    animation: treasureContainerAppear 0.5s ease;
+}
+
+@keyframes treasureContainerAppear {
+    0% {
+        transform: scale(0.5) rotateY(180deg);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) rotateY(0deg);
+        opacity: 1;
+    }
+}
+
+.treasure-title {
+    color: #fff;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.treasure-boxes {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.treasure-box {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: 4px solid #fff;
+    border-radius: 15px;
+    padding: 30px 20px;
+    min-width: 120px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.treasure-box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transform: rotate(45deg);
+    animation: treasureShine 2s infinite;
+}
+
+@keyframes treasureShine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.treasure-box:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    border-color: var(--gold);
+}
+
+.treasure-box:active {
+    transform: translateY(-5px) scale(1.02);
+}
+
+.treasure-box.opening {
+    animation: treasureOpen 0.8s ease;
+}
+
+@keyframes treasureOpen {
+    0% {
+        transform: scale(1) rotateY(0deg);
+    }
+    50% {
+        transform: scale(1.2) rotateY(180deg);
+    }
+    100% {
+        transform: scale(1) rotateY(360deg);
+    }
+}
+
+.treasure-box.opened {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    border-color: var(--gold);
+    animation: treasureOpened 0.5s ease;
+}
+
+@keyframes treasureOpened {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.treasure-box-icon {
+    font-size: 4rem;
+    margin-bottom: 10px;
+    animation: treasureBounce 1s ease infinite;
+}
+
+@keyframes treasureBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.treasure-box-label {
+    color: #fff;
+    font-weight: bold;
+    font-size: 1rem;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.treasure-result-icon {
+    font-size: 5rem;
+    margin-bottom: 15px;
+    animation: resultPop 0.5s ease;
+}
+
+@keyframes resultPop {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.treasure-result-name {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.treasure-result-label {
+    color: var(--gold);
+    font-size: 1.2rem;
+    font-weight: 900;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    animation: resultGlow 1s ease infinite;
+}
+
+@keyframes resultGlow {
+    0%, 100% {
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), 0 0 10px var(--gold);
+    }
+    50% {
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), 0 0 20px var(--gold), 0 0 30px var(--gold);
+    }
+}
+

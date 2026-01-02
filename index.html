@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>安紘的英雄傳說-完整終極版</title>
+    
+    <!-- 外部資源 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
+    
+    <!-- 本地樣式表 -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- 升級提示畫面 -->
+<div id="level-up-overlay" class="level-up-overlay">
+    <div class="level-up-content">
+        <div id="level-up-title" class="level-up-title">等級提升！</div>
+        <div id="level-up-message" class="level-up-message"></div>
+        <div id="level-up-attr" class="level-up-attr"></div>
+    </div>
+</div>
+
+<!-- 寶箱選擇畫面 -->
+<div id="treasure-box-overlay" class="treasure-box-overlay">
+    <div id="treasure-box-container" class="treasure-box-container">
+        <!-- 內容由JavaScript動態生成 -->
+    </div>
+</div>
+
+<!-- 底部導航欄 -->
+<nav class="nav-bar">
+    <div class="nav-item active" onclick="showPage('status', this)">
+        <div>👤</div>
+        英雄
+    </div>
+    <div class="nav-item" onclick="showPage('daily', this)">
+        <div>📜</div>
+        任務
+    </div>
+    <div class="nav-item" onclick="showPage('history', this)">
+        <div>📅</div>
+        足跡
+    </div>
+    <div class="nav-item" onclick="showPage('setting', this)">
+        <div>⚙️</div>
+        設置
+    </div>
+</nav>
+
+<!-- 英雄狀態頁面 -->
+<div id="status" class="page active">
+    <div class="container">
+        <h1>🛡️ 英雄屬性</h1>
+        <div style="display:flex; align-items:center; gap:20px; justify-content:center; margin-bottom:15px;">
+            <div id="hero-photo" class="avatar" style="background-image: url('photo.jpg');"></div>
+            <div>
+                <div style="font-size: 1.5rem; font-weight: 900;">鄭安紘</div>
+                <div style="color: var(--main-red); font-weight: bold;">總等級 Lv.<span id="total-lv">1</span></div>
+            </div>
+        </div>
+        <div style="height:220px;"><canvas id="radar"></canvas></div>
+        <div id="attr-list"></div>
+    </div>
+    <div class="container">
+        <h1>🎒 勇者儲物箱</h1>
+        <div class="inv-grid" id="inventory"></div>
+    </div>
+</div>
+
+<!-- 每日任務頁面 -->
+<div id="daily" class="page">
+    <div class="container">
+        <h1>📜 任務大廳</h1>
+        <p id="today-info" style="text-align:center; font-weight:bold; color:var(--main-red);"></p>
+        <div id="special-task-list"></div>
+        <hr id="special-hr" style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0; display:none;">
+        <div id="daily-list"></div>
+    </div>
+</div>
+
+<!-- 歷史記錄頁面 -->
+<div id="history" class="page">
+    <div class="container">
+        <h1>📅 冒險足跡</h1>
+        <div id="calendar-list"></div>
+    </div>
+</div>
+
+<!-- 設定頁面 -->
+<div id="setting" class="page">
+    <div class="container">
+        <h1>💾 資料備份與還原</h1>
+        <button class="btn-save" onclick="exportData()" style="background:#2563eb">📤 點我複製備份代碼</button>
+        <textarea id="import-area" style="margin-top:10px; height:60px;" placeholder="在此貼上代碼並按下方還原..."></textarea>
+        <button class="btn-save" onclick="importData()" style="background:#059669">📥 執行代碼還原</button>
+    </div>
+
+    <div class="container">
+        <h1>🛠️ 英雄數值微調</h1>
+        <div id="manual-edit-area"></div>
+        <button class="btn-save" onclick="manualUpdateStats()" style="background:var(--rank-gold)">💾 儲存修改數值</button>
+    </div>
+
+    <div class="container">
+        <h1>⚔️ 任務與成就設定</h1>
+        <input type="text" id="task-name" placeholder="名稱 (如：寫英文作業)">
+        <select id="task-attr">
+            <option value="chi">📖 國語</option>
+            <option value="math">🧠 數學</option>
+            <option value="eng">🗣️ 英文</option>
+            <option value="ball">⚽ 運動</option>
+            <option value="life">🧹 生活</option>
+        </select>
+        <select id="task-type" onchange="toggleDayPicker()">
+            <option value="normal">📅 每日重複任務</option>
+            <option value="special">🏆 特別成就 (高獎勵)</option>
+        </select>
+        <div id="weekday-section">
+            <div class="weekday-picker" id="week-picker">
+                <div class="day-btn selected" data-day="1">一</div>
+                <div class="day-btn selected" data-day="2">二</div>
+                <div class="day-btn selected" data-day="3">三</div>
+                <div class="day-btn selected" data-day="4">四</div>
+                <div class="day-btn selected" data-day="5">五</div>
+                <div class="day-btn" data-day="6">六</div>
+                <div class="day-btn" data-day="0">日</div>
+            </div>
+        </div>
+        <input type="number" id="task-exp-input" placeholder="獎勵 XP (例：20)">
+        <button class="btn-save" onclick="addNewTask()">＋ 新增任務/成就</button>
+        <div id="config-task-list"></div>
+    </div>
+
+    <div class="container">
+        <h1>🎁 寶物池設定</h1>
+        <p style="font-size:0.8rem; color:#666; margin-bottom:10px;">
+            升級時有20%機率觸發寶箱選擇！每個寶物都有機率權重，權重越高抽中機率越大。
+        </p>
+        <input type="text" id="item-name-input" placeholder="寶物名稱 (如：喝可樂)">
+        <input type="text" id="item-icon-input" placeholder="圖示 (如：🥤)">
+        <input type="text" id="item-function-input" placeholder="功能描述 (如：免做家事1次)">
+        <button class="btn-save" onclick="addNewItem()">＋ 新增到寶物池</button>
+        <div id="config-item-list"></div>
+    </div>
+</div>
+
+<!-- 本地JavaScript -->
+<script src="app.js"></script>
+</body>
+</html>
